@@ -14,7 +14,7 @@ export default function EditorPage() {
   const router = useRouter();
   const files = useParseStore((s) => s.files);
   const mappings = useMappingStore((s) => s.mappings);
-  const { roots, isDirty, projectId, setRoots, markSaved } = useEditorStore();
+  const { roots, isDirty, projectId, setRoots, markSaved, moveNode } = useEditorStore();
   const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -122,6 +122,7 @@ export default function EditorPage() {
             roots={roots}
             selectedId={selectedNode?.id ?? null}
             onSelect={setSelectedNode}
+            onMove={moveNode}
           />
         </div>
       </div>
