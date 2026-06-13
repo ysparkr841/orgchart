@@ -109,6 +109,24 @@ export function topologicalSort(nodes: RawNode[]): RawNode[] {
   return result;
 }
 
+/** 트리를 RawNode 배열로 펼친다 (parentId 포함) */
+export function treeToRawNodes(roots: TreeNode[]): RawNode[] {
+  const result: RawNode[] = [];
+  function walk(node: TreeNode, parentId: string | null): void {
+    result.push({
+      id: node.id,
+      title: node.title,
+      name: node.name,
+      parentId,
+      order: node.order,
+      meta: node.meta,
+    });
+    node.children.forEach((c) => walk(c, node.id));
+  }
+  roots.forEach((r) => walk(r, null));
+  return result;
+}
+
 /** 특정 노드의 depth를 반환한다 (루트 = 0) */
 export function getDepth(roots: TreeNode[], targetId: string): number {
   function dfs(nodes: TreeNode[], depth: number): number {

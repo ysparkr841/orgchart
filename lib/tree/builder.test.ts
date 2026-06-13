@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildTree, flattenTree, getDepth, topologicalSort } from "./builder";
+import { buildTree, flattenTree, getDepth, topologicalSort, treeToRawNodes } from "./builder";
 import type { RawNode } from "./builder";
 
 const NODES: RawNode[] = [
@@ -120,5 +120,23 @@ describe("topologicalSort", () => {
 
   it("빈 배열을 처리한다", () => {
     expect(topologicalSort([])).toHaveLength(0);
+  });
+});
+
+describe("treeToRawNodes", () => {
+  it("트리를 RawNode 배열로 펼치고 parentId를 올바르게 설정한다", () => {
+    const { roots } = buildTree(NODES);
+    const raw = treeToRawNodes(roots);
+    expect(raw).toHaveLength(NODES.length);
+    const root = raw.find((n) => n.id === "1");
+    expect(root?.parentId).toBeNull();
+    const dev = raw.find((n) => n.id === "2");
+    expect(dev?.parentId).toBe("1");
+    const fe = raw.find((n) => n.id === "4");
+    expect(fe?.parentId).toBe("2");
+  });
+
+  it("빈 배열에서 빈 배열을 반환한다", () => {
+    expect(treeToRawNodes([])).toHaveLength(0);
   });
 });
