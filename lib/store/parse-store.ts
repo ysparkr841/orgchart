@@ -1,10 +1,12 @@
 import { create } from "zustand";
 import type { ExcelParseResult } from "@/lib/parser/excel";
+import type { FileType } from "@/lib/parser/fileType";
 
 export interface UploadedFile {
   id: string;
   name: string;
   size: number;
+  fileType?: FileType;
   status: "pending" | "parsing" | "done" | "error";
   result?: ExcelParseResult;
   error?: string;

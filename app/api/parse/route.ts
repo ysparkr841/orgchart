@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parseExcel } from "@/lib/parser/excel";
+import { detectFileType, isSpreadsheet, type FileType } from "@/lib/parser/fileType";
+import type { SheetResult } from "@/lib/parser/excel";
 
 export interface ParseFileResult {
   fileName: string;
-  sheets: import("@/lib/parser/excel").SheetResult[];
+  fileType: FileType;
+  sheets: SheetResult[];
   warnings: string[];
 }
 
@@ -27,10 +30,23 @@ export async function POST(req: NextRequest) {
   }
 
   const results: ParseFileResult[] = await Promise.all(
-    files.map(async (file) => {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const { sheets, warnings } = parseExcel(buffer);
-      return { fileName: file.name, sheets, warnings };
+    files.map(async (file): Promise<ParseFileResult> => {
+      const fileType = detectFileType(file.name, file.type);
+
+      if (isSpreadsheet(fileType)) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const { sheets, warnings } = parseExcel(buffer);
+        return { fileName: file.name, fileType, sheets, warnings };
+      }
+
+      // 이미지/PDF: OCR 파싱 미지원 → placeholder 반환
+      const label = fileType === "image" ? "이미지" : fileType === "pdf" ? "PDF" : "해당";
+      return {
+        fileName: file.name,
+        fileType,
+        sheets: [],
+        warnings: [`${label} 파일 파싱은 추후 지원 예정입니다. 수동으로 데이터를 입력해 주세요.`],
+      };
     }),
   );
 
