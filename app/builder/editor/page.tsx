@@ -109,6 +109,12 @@ export default function EditorPage() {
             >
               {isSaving ? "저장 중…" : isDirty ? "저장" : "저장됨"}
             </button>
+            <button
+              onClick={() => router.push("/builder/export")}
+              className="px-4 py-1.5 bg-slate-700 text-white text-sm rounded-lg hover:bg-slate-800"
+            >
+              내보내기
+            </button>
           </div>
         </div>
         <div className="flex-1 min-h-0">
