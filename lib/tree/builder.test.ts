@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildTree, flattenTree, getDepth } from "./builder";
+import { buildTree, flattenTree, getDepth, topologicalSort } from "./builder";
 import type { RawNode } from "./builder";
 
 const NODES: RawNode[] = [
@@ -82,5 +82,43 @@ describe("getDepth", () => {
   it("존재하지 않는 id는 -1을 반환한다", () => {
     const { roots } = buildTree(NODES);
     expect(getDepth(roots, "999")).toBe(-1);
+  });
+});
+
+describe("topologicalSort", () => {
+  it("부모가 자식보다 앞에 온다", () => {
+    const nodes: RawNode[] = [
+      { id: "child", title: "자식", parentId: "parent" },
+      { id: "parent", title: "부모" },
+    ];
+    const sorted = topologicalSort(nodes);
+    const parentIdx = sorted.findIndex((n) => n.id === "parent");
+    const childIdx = sorted.findIndex((n) => n.id === "child");
+    expect(parentIdx).toBeLessThan(childIdx);
+  });
+
+  it("3단계 깊이도 올바르게 정렬한다", () => {
+    const nodes: RawNode[] = [
+      { id: "3", title: "손자", parentId: "2" },
+      { id: "1", title: "루트" },
+      { id: "2", title: "자식", parentId: "1" },
+    ];
+    const sorted = topologicalSort(nodes);
+    const ids = sorted.map((n) => n.id);
+    expect(ids.indexOf("1")).toBeLessThan(ids.indexOf("2"));
+    expect(ids.indexOf("2")).toBeLessThan(ids.indexOf("3"));
+  });
+
+  it("순환 참조가 있어도 모든 노드를 반환한다", () => {
+    const nodes: RawNode[] = [
+      { id: "a", title: "A", parentId: "b" },
+      { id: "b", title: "B", parentId: "a" },
+    ];
+    const sorted = topologicalSort(nodes);
+    expect(sorted).toHaveLength(2);
+  });
+
+  it("빈 배열을 처리한다", () => {
+    expect(topologicalSort([])).toHaveLength(0);
   });
 });
