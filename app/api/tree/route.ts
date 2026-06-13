@@ -3,6 +3,19 @@ import { prisma } from "@/lib/prisma";
 import { topologicalSort } from "@/lib/tree/builder";
 import type { RawNode } from "@/lib/tree/builder";
 
+export async function GET() {
+  try {
+    const projects = await prisma.project.findMany({
+      orderBy: { updatedAt: "desc" },
+      include: { _count: { select: { nodes: true } } },
+    });
+    return NextResponse.json({ projects });
+  } catch (err) {
+    console.error("[GET /api/tree]", err);
+    return NextResponse.json({ error: "DB 조회 실패" }, { status: 500 });
+  }
+}
+
 interface SaveTreeBody {
   name: string;
   nodes: RawNode[];
