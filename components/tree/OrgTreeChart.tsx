@@ -21,6 +21,17 @@ interface NodePos {
 
 const DROP_THRESHOLD = 70;
 
+const AVATAR_PALETTE = [
+  "#6366f1", "#8b5cf6", "#ec4899", "#f43f5e",
+  "#f97316", "#eab308", "#22c55e", "#14b8a6", "#3b82f6",
+];
+
+function avatarColor(title: string): string {
+  let h = 0;
+  for (let i = 0; i < title.length; i++) h = (h * 31 + title.charCodeAt(i)) >>> 0;
+  return AVATAR_PALETTE[h % AVATAR_PALETTE.length];
+}
+
 function collectSubtreeIds(node: TreeNode): Set<string> {
   const ids = new Set([node.id]);
   node.children.forEach((c) => collectSubtreeIds(c).forEach((id) => ids.add(id)));
@@ -42,8 +53,8 @@ export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal
     const hierarchy = d3.hierarchy(virtualRoot, (d) => d.children);
     const isVertical = layout === "vertical";
     const treeLayout = isVertical
-      ? d3.tree<TreeNode>().nodeSize([100, 120])
-      : d3.tree<TreeNode>().nodeSize([40, 200]);
+      ? d3.tree<TreeNode>().nodeSize([120, 140])
+      : d3.tree<TreeNode>().nodeSize([60, 220]);
     const root = treeLayout(hierarchy);
 
     const allNodes = root.descendants();
@@ -61,15 +72,23 @@ export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal
       if (n.y! > maxY) maxY = n.y!;
     }
 
-    const pad = 80;
+    const pad = 100;
     const vbX = isVertical ? minX - pad : minY - pad;
     const vbY = isVertical ? minY - pad : minX - pad;
-    const vbW = isVertical ? maxX - minX + pad * 2 : maxY - minY + pad * 2 + 120;
-    const vbH = isVertical ? maxY - minY + pad * 2 + 50 : maxX - minX + pad * 2;
+    const vbW = isVertical ? maxX - minX + pad * 2 : maxY - minY + pad * 2 + 170;
+    const vbH = isVertical ? maxY - minY + pad * 2 + 44 : maxX - minX + pad * 2;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
     svg.attr("viewBox", `${vbX} ${vbY} ${vbW} ${vbH}`);
+
+    svg
+      .append("defs")
+      .append("clipPath")
+      .attr("id", "org-avatar-clip")
+      .attr("clipPathUnits", "objectBoundingBox")
+      .append("circle")
+      .attr("cx", 0.5).attr("cy", 0.5).attr("r", 0.5);
 
     svg
       .append("g")
@@ -98,11 +117,9 @@ export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal
       .attr("fill", "#dcfce7")
       .attr("stroke", "#22c55e")
       .attr("stroke-width", 2.5)
-      .attr("rx", 6)
-      .attr("width", 120)
-      .attr("height", 28)
-      .attr("x", -60)
-      .attr("y", -14)
+      .attr("rx", 8)
+      .attr("width", 170).attr("height", 44)
+      .attr("x", -75).attr("y", -22)
       .attr("visibility", "hidden")
       .attr("pointer-events", "none");
 
@@ -112,8 +129,8 @@ export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal
       .attr("pointer-events", "none");
     ghostG
       .append("rect")
-      .attr("x", -60).attr("y", -14).attr("width", 120).attr("height", 28)
-      .attr("rx", 6).attr("fill", "#3b82f6").attr("opacity", 0.5);
+      .attr("x", -75).attr("y", -22).attr("width", 170).attr("height", 44)
+      .attr("rx", 8).attr("fill", "#3b82f6").attr("opacity", 0.5);
     const ghostText = ghostG
       .append("text")
       .attr("dy", "0.35em").attr("text-anchor", "middle")
@@ -133,18 +150,59 @@ export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal
 
     nodeG
       .append("rect")
-      .attr("x", -60).attr("y", -14).attr("width", 120).attr("height", 28)
-      .attr("rx", 6)
+      .attr("x", -75).attr("y", -22)
+      .attr("width", 170).attr("height", 44)
+      .attr("rx", 8)
       .attr("fill", (d) => d.data.id === selectedId ? "#3b82f6" : "#f1f5f9")
       .attr("stroke", (d) => d.data.id === selectedId ? "#2563eb" : "#cbd5e1")
       .attr("stroke-width", 1.5);
 
-    nodeG
+    const realNodes = nodeG.filter((d) => d.data.id !== "__root__");
+
+    realNodes
+      .append("circle")
+      .attr("cx", -50).attr("cy", 0).attr("r", 16)
+      .attr("fill", (d) =>
+        d.data.id === selectedId ? "#1d4ed8" : avatarColor(d.data.title),
+      );
+
+    realNodes
+      .filter((d) => !d.data.avatarUrl)
       .append("text")
-      .attr("dy", "0.35em").attr("text-anchor", "middle")
-      .attr("font-size", "12px")
-      .attr("fill", (d) => d.data.id === selectedId ? "#fff" : "#1e293b")
-      .text((d) => d.data.id === "__root__" ? "" : d.data.title);
+      .attr("x", -50).attr("y", 0).attr("dy", "0.35em")
+      .attr("text-anchor", "middle")
+      .attr("font-size", "13px").attr("font-weight", "700")
+      .attr("fill", "white").attr("pointer-events", "none")
+      .text((d) => d.data.title.charAt(0).toUpperCase());
+
+    realNodes
+      .filter((d) => !!d.data.avatarUrl)
+      .append("image")
+      .attr("href", (d) => d.data.avatarUrl!)
+      .attr("x", -66).attr("y", -16).attr("width", 32).attr("height", 32)
+      .attr("clip-path", "url(#org-avatar-clip)")
+      .attr("preserveAspectRatio", "xMidYMid slice");
+
+    realNodes
+      .append("text")
+      .attr("x", -26)
+      .attr("y", (d) => (d.data.name ? -6 : 0))
+      .attr("dy", "0.35em")
+      .attr("text-anchor", "start")
+      .attr("font-size", "12px").attr("font-weight", "600")
+      .attr("fill", (d) => (d.data.id === selectedId ? "#fff" : "#1e293b"))
+      .attr("pointer-events", "none")
+      .text((d) => d.data.title);
+
+    realNodes
+      .filter((d) => !!d.data.name)
+      .append("text")
+      .attr("x", -26).attr("y", 8).attr("dy", "0.35em")
+      .attr("text-anchor", "start")
+      .attr("font-size", "10px")
+      .attr("fill", (d) => (d.data.id === selectedId ? "#dbeafe" : "#64748b"))
+      .attr("pointer-events", "none")
+      .text((d) => d.data.name!);
 
     nodeG.on("click", (_, d) => {
       if (d.data.id !== "__root__") onSelect(d.data);

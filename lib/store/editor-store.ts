@@ -10,7 +10,7 @@ function removeById(nodes: TreeNode[], id: string): TreeNode[] {
 function patchById(
   nodes: TreeNode[],
   id: string,
-  patch: Partial<Pick<TreeNode, "title" | "name">>,
+  patch: Partial<Pick<TreeNode, "title" | "name" | "avatarUrl">>,
 ): TreeNode[] {
   return nodes.map((n) =>
     n.id === id
@@ -61,7 +61,7 @@ interface EditorState {
   setRoots: (roots: TreeNode[], projectId?: string) => void;
   addNode: (parentId: string | null, node: TreeNode) => void;
   deleteNode: (id: string) => void;
-  updateNode: (id: string, patch: Partial<Pick<TreeNode, "title" | "name">>) => void;
+  updateNode: (id: string, patch: Partial<Pick<TreeNode, "title" | "name" | "avatarUrl">>) => void;
   moveNode: (nodeId: string, newParentId: string | null) => void;
   markSaved: (projectId: string) => void;
 }
