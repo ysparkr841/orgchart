@@ -106,3 +106,13 @@ export function guessTitleColumn(headers: string[]): string | null {
   }
   return null;
 }
+
+/** 가장 유력한 "상위부서" 컬럼 헤더를 추측한다 */
+export function guessParentColumn(headers: string[]): string | null {
+  const candidates = ["상위부서", "상위팀", "상위", "parent", "소속", "부서명"];
+  for (const c of candidates) {
+    const found = headers.find((h) => h.toLowerCase().includes(c));
+    if (found) return found;
+  }
+  return null;
+}
