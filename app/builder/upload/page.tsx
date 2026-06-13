@@ -6,6 +6,7 @@ import { FileDropZone } from "@/components/upload/FileDropZone";
 import { FileList } from "@/components/upload/FileList";
 import { useParseStore, type UploadedFile } from "@/lib/store/parse-store";
 import type { ParseResponse } from "@/app/api/parse/route";
+import { detectFileType } from "@/lib/parser/fileType";
 
 function generateId(): string {
   return Math.random().toString(36).slice(2, 10);
@@ -25,6 +26,7 @@ export default function UploadPage() {
         id: generateId(),
         name: f.name,
         size: f.size,
+        fileType: detectFileType(f.name, f.type),
         status: "parsing",
       }));
       addFiles(newFiles);
@@ -80,7 +82,7 @@ export default function UploadPage() {
     <main className="mx-auto max-w-2xl px-4 py-12">
       <h1 className="mb-1 text-2xl font-bold text-gray-900">파일 업로드</h1>
       <p className="mb-8 text-sm text-gray-500">
-        조직 데이터가 담긴 엑셀 파일을 업로드하세요. 여러 파일을 한 번에 올릴 수 있습니다.
+        조직 데이터 파일을 업로드하세요. 엑셀, CSV, 이미지, PDF를 여러 파일 한 번에 올릴 수 있습니다.
       </p>
 
       <FileDropZone onFilesSelected={handleFilesSelected} disabled={isParsing} />

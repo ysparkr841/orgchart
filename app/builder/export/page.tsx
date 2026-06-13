@@ -5,6 +5,7 @@ import { toPng } from "html-to-image";
 import { useEditorStore } from "@/lib/store/editor-store";
 import { treeToRawNodes } from "@/lib/tree/builder";
 import { OrgTreeChart } from "@/components/tree/OrgTreeChart";
+import { jsPDF } from "jspdf";
 
 export default function ExportPage() {
   const router = useRouter();
@@ -12,6 +13,8 @@ export default function ExportPage() {
   const treeRef = useRef<HTMLDivElement>(null);
   const [pngLoading, setPngLoading] = useState(false);
   const [pngError, setPngError] = useState<string | null>(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   if (roots.length === 0) {
     return (
@@ -60,6 +63,31 @@ export default function ExportPage() {
     }
   }
 
+  async function downloadPdf() {
+    if (!treeRef.current) return;
+    setPdfLoading(true);
+    setPdfError(null);
+    try {
+      const dataUrl = await toPng(treeRef.current, {
+        backgroundColor: "#f8fafc",
+        pixelRatio: 2,
+      });
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise<void>((resolve) => { img.onload = () => resolve(); });
+      const imgW = img.naturalWidth;
+      const imgH = img.naturalHeight;
+      const orientation = imgW > imgH ? "landscape" : "portrait";
+      const doc = new jsPDF({ orientation, unit: "px", format: [imgW, imgH] });
+      doc.addImage(dataUrl, "PNG", 0, 0, imgW, imgH);
+      doc.save(`orgchart-${projectId ?? "export"}.pdf`);
+    } catch {
+      setPdfError("PDF 변환에 실패했습니다.");
+    } finally {
+      setPdfLoading(false);
+    }
+  }
+
   return (
     <div className="flex flex-col h-screen bg-slate-50">
       {/* 헤더 */}
@@ -74,8 +102,8 @@ export default function ExportPage() {
           <h1 className="text-xl font-semibold text-slate-800">내보내기</h1>
         </div>
         <div className="flex items-center gap-3">
-          {pngError && (
-            <span className="text-xs text-red-600">{pngError}</span>
+          {(pngError || pdfError) && (
+            <span className="text-xs text-red-600">{pngError ?? pdfError}</span>
           )}
           <button
             onClick={downloadJson}
@@ -86,9 +114,16 @@ export default function ExportPage() {
           <button
             onClick={downloadPng}
             disabled={pngLoading}
-            className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="px-4 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm rounded-lg hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {pngLoading ? "변환 중…" : "PNG 다운로드"}
+          </button>
+          <button
+            onClick={downloadPdf}
+            disabled={pdfLoading}
+            className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {pdfLoading ? "변환 중…" : "PDF 다운로드"}
           </button>
         </div>
       </header>
