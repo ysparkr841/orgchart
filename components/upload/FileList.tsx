@@ -1,6 +1,7 @@
 "use client";
 
 import type { UploadedFile } from "@/lib/store/parse-store";
+import { FilePreview } from "./FilePreview";
 
 interface FileListProps {
   files: UploadedFile[];
@@ -80,6 +81,9 @@ export function FileList({ files, onRemove }: FileListProps) {
               <p className="mt-0.5 text-xs text-red-600">{file.error}</p>
             )}
             <SheetSummary file={file} />
+            {file.status === "done" && file.result && (
+              <FilePreview sheets={file.result.sheets} />
+            )}
           </div>
           {onRemove && file.status !== "parsing" && (
             <button
