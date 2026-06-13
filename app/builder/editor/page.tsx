@@ -18,6 +18,7 @@ export default function EditorPage() {
   const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   // 파싱 결과 → editor 스토어 초기화 (최초 1회)
   const { roots: parsedRoots, orphans } = useMemo(() => {
@@ -109,6 +110,20 @@ export default function EditorPage() {
             >
               {isSaving ? "저장 중…" : isDirty ? "저장" : "저장됨"}
             </button>
+            {projectId && (
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}/share/${projectId}`;
+                  void navigator.clipboard.writeText(url).then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  });
+                }}
+                className="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700"
+              >
+                {copied ? "복사됨!" : "공유 링크"}
+              </button>
+            )}
             <button
               onClick={() => router.push("/builder/export")}
               className="px-4 py-1.5 bg-slate-700 text-white text-sm rounded-lg hover:bg-slate-800"
