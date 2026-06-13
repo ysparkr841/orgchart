@@ -1,6 +1,7 @@
 "use client";
 
 import type { UploadedFile } from "@/lib/store/parse-store";
+import { FILE_TYPE_LABELS, type FileType } from "@/lib/parser/fileType";
 import { FilePreview } from "./FilePreview";
 
 interface FileListProps {
@@ -12,6 +13,24 @@ function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+const FILE_TYPE_COLORS: Record<FileType, string> = {
+  xlsx: "bg-emerald-100 text-emerald-700",
+  xls: "bg-emerald-100 text-emerald-700",
+  csv: "bg-teal-100 text-teal-700",
+  image: "bg-purple-100 text-purple-700",
+  pdf: "bg-orange-100 text-orange-700",
+  unknown: "bg-gray-100 text-gray-600",
+};
+
+function FileTypeBadge({ fileType }: { fileType?: FileType }) {
+  if (!fileType) return null;
+  return (
+    <span className={`rounded px-1.5 py-0.5 text-xs font-semibold ${FILE_TYPE_COLORS[fileType]}`}>
+      {FILE_TYPE_LABELS[fileType]}
+    </span>
+  );
 }
 
 function StatusBadge({ status }: { status: UploadedFile["status"] }) {
@@ -74,6 +93,7 @@ export function FileList({ files, onRemove }: FileListProps) {
               <span className="truncate text-sm font-medium text-gray-800">
                 {file.name}
               </span>
+              <FileTypeBadge fileType={file.fileType} />
               <StatusBadge status={file.status} />
             </div>
             <span className="text-xs text-gray-400">{formatBytes(file.size)}</span>
