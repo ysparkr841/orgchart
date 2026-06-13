@@ -8,7 +8,10 @@ import { rowsToNodes } from "@/lib/tree/rowsToNodes";
 import { buildTree, treeToRawNodes } from "@/lib/tree/builder";
 import type { TreeNode } from "@/lib/tree/builder";
 import { OrgTreeChart, type TreeLayout } from "@/components/tree/OrgTreeChart";
+import { OrgListView } from "@/components/tree/OrgListView";
 import { NodeEditPanel } from "@/components/editor/NodeEditPanel";
+
+type ViewMode = "tree" | "list";
 
 export default function EditorPage() {
   const router = useRouter();
@@ -18,10 +21,10 @@ export default function EditorPage() {
   const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [copied, setCopied] = useState(false);
   const [layout, setLayout] = useState<TreeLayout>("horizontal");
 
-  // 파싱 결과 → editor 스토어 초기화 (최초 1회)
   const { roots: parsedRoots, orphans } = useMemo(() => {
     const allSheets = files.flatMap((f) =>
       f.status === "done" && f.result ? f.result.sheets : [],
@@ -91,26 +94,50 @@ export default function EditorPage() {
 
   return (
     <div className="flex h-screen bg-slate-50">
-      {/* 트리 영역 */}
       <div className="flex-1 p-6 overflow-hidden flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold text-slate-800">조직도 편집기</h1>
           <div className="flex items-center gap-3">
-            {/* 레이아웃 토글 */}
-            <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs">
+            {/* 뷰 전환 토글 */}
+            <div className="flex rounded-lg border border-slate-200 overflow-hidden text-sm">
               <button
-                onClick={() => setLayout("horizontal")}
-                className={`px-3 py-1.5 ${layout === "horizontal" ? "bg-blue-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50"}`}
+                onClick={() => setViewMode("tree")}
+                className={`px-3 py-1.5 transition-colors ${
+                  viewMode === "tree"
+                    ? "bg-slate-700 text-white"
+                    : "bg-white text-slate-600 hover:bg-slate-50"
+                }`}
               >
-                가로
+                트리
               </button>
               <button
-                onClick={() => setLayout("vertical")}
-                className={`px-3 py-1.5 ${layout === "vertical" ? "bg-blue-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50"}`}
+                onClick={() => setViewMode("list")}
+                className={`px-3 py-1.5 border-l border-slate-200 transition-colors ${
+                  viewMode === "list"
+                    ? "bg-slate-700 text-white"
+                    : "bg-white text-slate-600 hover:bg-slate-50"
+                }`}
               >
-                세로
+                목록
               </button>
             </div>
+            {/* 레이아웃 토글 (트리 모드에서만) */}
+            {viewMode === "tree" && (
+              <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs">
+                <button
+                  onClick={() => setLayout("horizontal")}
+                  className={`px-3 py-1.5 ${layout === "horizontal" ? "bg-blue-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50"}`}
+                >
+                  가로
+                </button>
+                <button
+                  onClick={() => setLayout("vertical")}
+                  className={`px-3 py-1.5 ${layout === "vertical" ? "bg-blue-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50"}`}
+                >
+                  세로
+                </button>
+              </div>
+            )}
             {orphans.length > 0 && (
               <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
                 부모 없는 노드 {orphans.length}개 루트로 배치됨
@@ -149,17 +176,24 @@ export default function EditorPage() {
           </div>
         </div>
         <div className="flex-1 min-h-0">
-          <OrgTreeChart
-            roots={roots}
-            selectedId={selectedNode?.id ?? null}
-            onSelect={setSelectedNode}
-            layout={layout}
-            onMove={moveNode}
-          />
+          {viewMode === "tree" ? (
+            <OrgTreeChart
+              roots={roots}
+              selectedId={selectedNode?.id ?? null}
+              onSelect={setSelectedNode}
+              layout={layout}
+              onMove={moveNode}
+            />
+          ) : (
+            <OrgListView
+              roots={roots}
+              selectedId={selectedNode?.id ?? null}
+              onSelect={setSelectedNode}
+            />
+          )}
         </div>
       </div>
 
-      {/* 세부정보/편집 패널 */}
       <aside className="w-72 border-l border-slate-200 bg-white p-5 overflow-y-auto">
         {selectedNode ? (
           <NodeEditPanel
