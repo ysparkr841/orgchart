@@ -83,6 +83,32 @@ export function flattenTree(roots: TreeNode[]): TreeNode[] {
   return result;
 }
 
+/**
+ * DB 저장 전 부모가 자식보다 먼저 오도록 위상 정렬한다.
+ * 순환 참조가 있으면 해당 노드는 미방문 상태로 남아 뒤에 추가된다.
+ */
+export function topologicalSort(nodes: RawNode[]): RawNode[] {
+  const map = new Map(nodes.map((n) => [n.id, n]));
+  const visited = new Set<string>();
+  const result: RawNode[] = [];
+
+  function visit(id: string, stack: Set<string>): void {
+    if (visited.has(id) || stack.has(id)) return;
+    stack.add(id);
+    const node = map.get(id);
+    if (!node) return;
+    if (node.parentId && map.has(node.parentId)) {
+      visit(node.parentId, stack);
+    }
+    stack.delete(id);
+    visited.add(id);
+    result.push(node);
+  }
+
+  for (const node of nodes) visit(node.id, new Set());
+  return result;
+}
+
 /** 특정 노드의 depth를 반환한다 (루트 = 0) */
 export function getDepth(roots: TreeNode[], targetId: string): number {
   function dfs(nodes: TreeNode[], depth: number): number {
