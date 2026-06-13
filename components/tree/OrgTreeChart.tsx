@@ -3,10 +3,13 @@ import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import type { TreeNode } from "@/lib/tree/builder";
 
+export type TreeLayout = "horizontal" | "vertical";
+
 interface Props {
   roots: TreeNode[];
   selectedId: string | null;
   onSelect: (node: TreeNode) => void;
+  layout?: TreeLayout;
   onMove?: (nodeId: string, newParentId: string | null) => void;
 }
 
@@ -24,27 +27,28 @@ function collectSubtreeIds(node: TreeNode): Set<string> {
   return ids;
 }
 
-export function OrgTreeChart({ roots, selectedId, onSelect, onMove }: Props) {
+export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal", onMove }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const nodePosRef = useRef<NodePos[]>([]);
 
   useEffect(() => {
     if (!svgRef.current || roots.length === 0) return;
 
-    // 다중 루트는 가상 루트로 감쌈
     const virtualRoot: TreeNode =
       roots.length === 1
         ? roots[0]
         : { id: "__root__", title: "", order: 0, children: roots };
 
     const hierarchy = d3.hierarchy(virtualRoot, (d) => d.children);
-    const treeLayout = d3.tree<TreeNode>().nodeSize([40, 200]);
+    const isVertical = layout === "vertical";
+    const treeLayout = isVertical
+      ? d3.tree<TreeNode>().nodeSize([100, 120])
+      : d3.tree<TreeNode>().nodeSize([40, 200]);
     const root = treeLayout(hierarchy);
 
     const allNodes = root.descendants();
     const links = root.links();
 
-    // 드롭 대상 탐색용 좌표 저장 (SVG x = D3 y, SVG y = D3 x)
     nodePosRef.current = allNodes
       .filter((d) => d.data.id !== "__root__")
       .map((d) => ({ id: d.data.id, x: d.y!, y: d.x! }));
@@ -58,10 +62,10 @@ export function OrgTreeChart({ roots, selectedId, onSelect, onMove }: Props) {
     }
 
     const pad = 80;
-    const vbX = minY - pad;
-    const vbY = minX - pad;
-    const vbW = maxY - minY + pad * 2 + 120;
-    const vbH = maxX - minX + pad * 2;
+    const vbX = isVertical ? minX - pad : minY - pad;
+    const vbY = isVertical ? minY - pad : minX - pad;
+    const vbW = isVertical ? maxX - minX + pad * 2 : maxY - minY + pad * 2 + 120;
+    const vbH = isVertical ? maxY - minY + pad * 2 + 50 : maxX - minX + pad * 2;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -76,15 +80,19 @@ export function OrgTreeChart({ roots, selectedId, onSelect, onMove }: Props) {
       .attr("stroke", "#94a3b8")
       .attr("stroke-width", 1.5)
       .attr("d", (d) => {
-        const sx = d.source.y!;
-        const sy = d.source.x!;
-        const tx = d.target.y!;
-        const ty = d.target.x!;
-        const mx = (sx + tx) / 2;
-        return `M${sx},${sy}C${mx},${sy} ${mx},${ty} ${tx},${ty}`;
+        if (isVertical) {
+          const sx = d.source.x!, sy = d.source.y!;
+          const tx = d.target.x!, ty = d.target.y!;
+          const my = (sy + ty) / 2;
+          return `M${sx},${sy}C${sx},${my} ${tx},${my} ${tx},${ty}`;
+        } else {
+          const sx = d.source.y!, sy = d.source.x!;
+          const tx = d.target.y!, ty = d.target.x!;
+          const mx = (sx + tx) / 2;
+          return `M${sx},${sy}C${mx},${sy} ${mx},${ty} ${tx},${ty}`;
+        }
       });
 
-    // 드롭 대상 강조 (드래그 중에만 표시)
     const dropHighlight = svg
       .append("rect")
       .attr("fill", "#dcfce7")
@@ -98,7 +106,6 @@ export function OrgTreeChart({ roots, selectedId, onSelect, onMove }: Props) {
       .attr("visibility", "hidden")
       .attr("pointer-events", "none");
 
-    // 드래그 고스트 노드
     const ghostG = svg
       .append("g")
       .attr("visibility", "hidden")
@@ -117,31 +124,27 @@ export function OrgTreeChart({ roots, selectedId, onSelect, onMove }: Props) {
       .selectAll<SVGGElement, d3.HierarchyPointNode<TreeNode>>("g")
       .data(allNodes)
       .join("g")
-      .attr("transform", (d) => `translate(${d.y},${d.x})`)
+      .attr("transform", (d) =>
+        isVertical
+          ? `translate(${d.x},${d.y})`
+          : `translate(${d.y},${d.x})`,
+      )
       .style("cursor", onMove ? "grab" : "pointer");
 
     nodeG
       .append("rect")
-      .attr("x", -60)
-      .attr("y", -14)
-      .attr("width", 120)
-      .attr("height", 28)
+      .attr("x", -60).attr("y", -14).attr("width", 120).attr("height", 28)
       .attr("rx", 6)
-      .attr("fill", (d) =>
-        d.data.id === selectedId ? "#3b82f6" : "#f1f5f9",
-      )
-      .attr("stroke", (d) =>
-        d.data.id === selectedId ? "#2563eb" : "#cbd5e1",
-      )
+      .attr("fill", (d) => d.data.id === selectedId ? "#3b82f6" : "#f1f5f9")
+      .attr("stroke", (d) => d.data.id === selectedId ? "#2563eb" : "#cbd5e1")
       .attr("stroke-width", 1.5);
 
     nodeG
       .append("text")
-      .attr("dy", "0.35em")
-      .attr("text-anchor", "middle")
+      .attr("dy", "0.35em").attr("text-anchor", "middle")
       .attr("font-size", "12px")
-      .attr("fill", (d) => (d.data.id === selectedId ? "#fff" : "#1e293b"))
-      .text((d) => (d.data.id === "__root__" ? "" : d.data.title));
+      .attr("fill", (d) => d.data.id === selectedId ? "#fff" : "#1e293b")
+      .text((d) => d.data.id === "__root__" ? "" : d.data.title);
 
     nodeG.on("click", (_, d) => {
       if (d.data.id !== "__root__") onSelect(d.data);
@@ -158,10 +161,7 @@ export function OrgTreeChart({ roots, selectedId, onSelect, onMove }: Props) {
       for (const np of nodePosRef.current) {
         if (subtreeIds.has(np.id)) continue;
         const dist = Math.hypot(np.x - ex, np.y - ey);
-        if (dist < minDist) {
-          minDist = dist;
-          nearest = np;
-        }
+        if (dist < minDist) { minDist = dist; nearest = np; }
       }
       return nearest && minDist < DROP_THRESHOLD ? nearest : null;
     }
@@ -173,17 +173,15 @@ export function OrgTreeChart({ roots, selectedId, onSelect, onMove }: Props) {
         draggedId = d.data.id;
         subtreeIds = collectSubtreeIds(d.data);
         ghostText.text(d.data.title);
-        ghostG
-          .attr("visibility", "visible")
-          .attr("transform", `translate(${d.y},${d.x})`);
+        ghostG.attr("visibility", "visible")
+          .attr("transform", isVertical ? `translate(${d.x},${d.y})` : `translate(${d.y},${d.x})`);
         d3.select(this).style("opacity", 0.4).style("cursor", "grabbing");
       })
       .on("drag", function (event) {
         ghostG.attr("transform", `translate(${event.x},${event.y})`);
         const target = findNearestTarget(event.x, event.y);
         if (target) {
-          dropHighlight
-            .attr("visibility", "visible")
+          dropHighlight.attr("visibility", "visible")
             .attr("transform", `translate(${target.x},${target.y})`);
         } else {
           dropHighlight.attr("visibility", "hidden");
@@ -201,7 +199,7 @@ export function OrgTreeChart({ roots, selectedId, onSelect, onMove }: Props) {
       });
 
     nodeG.call(drag);
-  }, [roots, selectedId, onSelect, onMove]);
+  }, [roots, selectedId, onSelect, layout, onMove]);
 
   if (roots.length === 0) {
     return (
