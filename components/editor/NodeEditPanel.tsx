@@ -12,12 +12,17 @@ interface Props {
 export function NodeEditPanel({ node, onClose }: Props) {
   const [title, setTitle] = useState(node.title);
   const [name, setName] = useState(node.name ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(node.avatarUrl ?? "");
   const { roots, updateNode, deleteNode, addNode, moveNode } = useEditorStore();
 
   const allNodes = flattenTree(roots).filter((n) => n.id !== node.id);
 
   function handleSaveEdit() {
-    updateNode(node.id, { title, name: name || undefined });
+    updateNode(node.id, {
+      title,
+      name: name || undefined,
+      avatarUrl: avatarUrl || undefined,
+    });
   }
 
   function handleDelete() {
@@ -71,6 +76,26 @@ export function NodeEditPanel({ node, onClose }: Props) {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-slate-500">프로필 사진 URL (선택)</label>
+        <input
+          className="border border-slate-200 rounded px-2 py-1 text-sm"
+          value={avatarUrl}
+          onChange={(e) => setAvatarUrl(e.target.value)}
+          placeholder="https://..."
+        />
+        {avatarUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={avatarUrl}
+            alt="프로필 미리보기"
+            className="w-10 h-10 rounded-full object-cover border border-slate-200 mt-1"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.display = "none";
+            }}
+          />
+        )}
       </div>
       <button
         onClick={handleSaveEdit}

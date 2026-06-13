@@ -9,20 +9,30 @@ interface Props {
   onSelect: (node: TreeNode) => void;
 }
 
+const AVATAR_PALETTE = [
+  "#6366f1", "#8b5cf6", "#ec4899", "#f43f5e",
+  "#f97316", "#eab308", "#22c55e", "#14b8a6", "#3b82f6",
+];
+
+function avatarColor(title: string): string {
+  let h = 0;
+  for (let i = 0; i < title.length; i++) h = (h * 31 + title.charCodeAt(i)) >>> 0;
+  return AVATAR_PALETTE[h % AVATAR_PALETTE.length];
+}
+
 export function OrgTreeChart({ roots, selectedId, onSelect }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     if (!svgRef.current || roots.length === 0) return;
 
-    // 다중 루트는 가상 루트로 감쌈
     const virtualRoot: TreeNode =
       roots.length === 1
         ? roots[0]
         : { id: "__root__", title: "", order: 0, children: roots };
 
     const root = d3.hierarchy(virtualRoot, (d) => d.children);
-    const treeLayout = d3.tree<TreeNode>().nodeSize([40, 200]);
+    const treeLayout = d3.tree<TreeNode>().nodeSize([60, 220]);
     treeLayout(root);
 
     const allNodes = root.descendants();
@@ -36,15 +46,26 @@ export function OrgTreeChart({ roots, selectedId, onSelect }: Props) {
       if (n.y! > maxY) maxY = n.y!;
     }
 
-    const pad = 80;
+    const pad = 100;
     const vbX = minY - pad;
     const vbY = minX - pad;
-    const vbW = maxY - minY + pad * 2 + 120;
+    const vbW = maxY - minY + pad * 2 + 170;
     const vbH = maxX - minX + pad * 2;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
     svg.attr("viewBox", `${vbX} ${vbY} ${vbW} ${vbH}`);
+
+    // 원형 클립패스 — objectBoundingBox 사용 시 모든 이미지에 공통 적용 가능
+    svg
+      .append("defs")
+      .append("clipPath")
+      .attr("id", "org-avatar-clip")
+      .attr("clipPathUnits", "objectBoundingBox")
+      .append("circle")
+      .attr("cx", 0.5)
+      .attr("cy", 0.5)
+      .attr("r", 0.5);
 
     svg
       .append("g")
@@ -74,13 +95,14 @@ export function OrgTreeChart({ roots, selectedId, onSelect }: Props) {
         if (d.data.id !== "__root__") onSelect(d.data);
       });
 
+    // 노드 배경 rect
     nodeG
       .append("rect")
-      .attr("x", -60)
-      .attr("y", -14)
-      .attr("width", 120)
-      .attr("height", 28)
-      .attr("rx", 6)
+      .attr("x", -75)
+      .attr("y", -22)
+      .attr("width", 170)
+      .attr("height", 44)
+      .attr("rx", 8)
       .attr("fill", (d) =>
         d.data.id === selectedId ? "#3b82f6" : "#f1f5f9",
       )
@@ -89,13 +111,71 @@ export function OrgTreeChart({ roots, selectedId, onSelect }: Props) {
       )
       .attr("stroke-width", 1.5);
 
-    nodeG
+    // 아바타 배경 원 (실제 노드만)
+    const realNodes = nodeG.filter((d) => d.data.id !== "__root__");
+
+    realNodes
+      .append("circle")
+      .attr("cx", -50)
+      .attr("cy", 0)
+      .attr("r", 16)
+      .attr("fill", (d) =>
+        d.data.id === selectedId
+          ? "#1d4ed8"
+          : avatarColor(d.data.title),
+      );
+
+    // 아바타 URL 없는 경우: 이니셜 텍스트
+    realNodes
+      .filter((d) => !d.data.avatarUrl)
       .append("text")
+      .attr("x", -50)
+      .attr("y", 0)
       .attr("dy", "0.35em")
       .attr("text-anchor", "middle")
+      .attr("font-size", "13px")
+      .attr("font-weight", "700")
+      .attr("fill", "white")
+      .attr("pointer-events", "none")
+      .text((d) => d.data.title.charAt(0).toUpperCase());
+
+    // 아바타 URL 있는 경우: 원형 이미지
+    realNodes
+      .filter((d) => !!d.data.avatarUrl)
+      .append("image")
+      .attr("href", (d) => d.data.avatarUrl!)
+      .attr("x", -66)
+      .attr("y", -16)
+      .attr("width", 32)
+      .attr("height", 32)
+      .attr("clip-path", "url(#org-avatar-clip)")
+      .attr("preserveAspectRatio", "xMidYMid slice");
+
+    // 직위/부서 타이틀
+    realNodes
+      .append("text")
+      .attr("x", -26)
+      .attr("y", (d) => (d.data.name ? -6 : 0))
+      .attr("dy", "0.35em")
+      .attr("text-anchor", "start")
       .attr("font-size", "12px")
+      .attr("font-weight", "600")
       .attr("fill", (d) => (d.data.id === selectedId ? "#fff" : "#1e293b"))
-      .text((d) => (d.data.id === "__root__" ? "" : d.data.title));
+      .attr("pointer-events", "none")
+      .text((d) => d.data.title);
+
+    // 이름 (있을 때만)
+    realNodes
+      .filter((d) => !!d.data.name)
+      .append("text")
+      .attr("x", -26)
+      .attr("y", 8)
+      .attr("dy", "0.35em")
+      .attr("text-anchor", "start")
+      .attr("font-size", "10px")
+      .attr("fill", (d) => (d.data.id === selectedId ? "#dbeafe" : "#64748b"))
+      .attr("pointer-events", "none")
+      .text((d) => d.data.name!);
   }, [roots, selectedId, onSelect]);
 
   if (roots.length === 0) {
