@@ -3,26 +3,32 @@ import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import type { TreeNode } from "@/lib/tree/builder";
 
+export type TreeLayout = "horizontal" | "vertical";
+
 interface Props {
   roots: TreeNode[];
   selectedId: string | null;
   onSelect: (node: TreeNode) => void;
+  layout?: TreeLayout;
 }
 
-export function OrgTreeChart({ roots, selectedId, onSelect }: Props) {
+export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal" }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     if (!svgRef.current || roots.length === 0) return;
 
-    // 다중 루트는 가상 루트로 감쌈
     const virtualRoot: TreeNode =
       roots.length === 1
         ? roots[0]
         : { id: "__root__", title: "", order: 0, children: roots };
 
     const root = d3.hierarchy(virtualRoot, (d) => d.children);
-    const treeLayout = d3.tree<TreeNode>().nodeSize([40, 200]);
+
+    const isVertical = layout === "vertical";
+    const treeLayout = isVertical
+      ? d3.tree<TreeNode>().nodeSize([100, 120])
+      : d3.tree<TreeNode>().nodeSize([40, 200]);
     treeLayout(root);
 
     const allNodes = root.descendants();
@@ -37,10 +43,11 @@ export function OrgTreeChart({ roots, selectedId, onSelect }: Props) {
     }
 
     const pad = 80;
-    const vbX = minY - pad;
-    const vbY = minX - pad;
-    const vbW = maxY - minY + pad * 2 + 120;
-    const vbH = maxX - minX + pad * 2;
+    // 수직: x=가로(형제 간격), y=세로(깊이) / 수평: x=세로(형제 간격), y=가로(깊이)
+    const vbX = isVertical ? minX - pad : minY - pad;
+    const vbY = isVertical ? minY - pad : minX - pad;
+    const vbW = isVertical ? maxX - minX + pad * 2 : maxY - minY + pad * 2 + 120;
+    const vbH = isVertical ? maxY - minY + pad * 2 + 50 : maxX - minX + pad * 2;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -55,12 +62,21 @@ export function OrgTreeChart({ roots, selectedId, onSelect }: Props) {
       .attr("stroke", "#94a3b8")
       .attr("stroke-width", 1.5)
       .attr("d", (d) => {
-        const sx = d.source.y!;
-        const sy = d.source.x!;
-        const tx = d.target.y!;
-        const ty = d.target.x!;
-        const mx = (sx + tx) / 2;
-        return `M${sx},${sy}C${mx},${sy} ${mx},${ty} ${tx},${ty}`;
+        if (isVertical) {
+          const sx = d.source.x!;
+          const sy = d.source.y!;
+          const tx = d.target.x!;
+          const ty = d.target.y!;
+          const my = (sy + ty) / 2;
+          return `M${sx},${sy}C${sx},${my} ${tx},${my} ${tx},${ty}`;
+        } else {
+          const sx = d.source.y!;
+          const sy = d.source.x!;
+          const tx = d.target.y!;
+          const ty = d.target.x!;
+          const mx = (sx + tx) / 2;
+          return `M${sx},${sy}C${mx},${sy} ${mx},${ty} ${tx},${ty}`;
+        }
       });
 
     const nodeG = svg
@@ -68,7 +84,11 @@ export function OrgTreeChart({ roots, selectedId, onSelect }: Props) {
       .selectAll("g")
       .data(allNodes)
       .join("g")
-      .attr("transform", (d) => `translate(${d.y},${d.x})`)
+      .attr("transform", (d) =>
+        isVertical
+          ? `translate(${d.x},${d.y})`
+          : `translate(${d.y},${d.x})`,
+      )
       .style("cursor", "pointer")
       .on("click", (_, d) => {
         if (d.data.id !== "__root__") onSelect(d.data);
@@ -96,7 +116,7 @@ export function OrgTreeChart({ roots, selectedId, onSelect }: Props) {
       .attr("font-size", "12px")
       .attr("fill", (d) => (d.data.id === selectedId ? "#fff" : "#1e293b"))
       .text((d) => (d.data.id === "__root__" ? "" : d.data.title));
-  }, [roots, selectedId, onSelect]);
+  }, [roots, selectedId, onSelect, layout]);
 
   if (roots.length === 0) {
     return (
