@@ -93,6 +93,7 @@ export default function EditorPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold text-slate-800">조직도 편집기</h1>
           <div className="flex items-center gap-3">
+            {/* 레이아웃 토글 */}
             <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs">
               <button
                 onClick={() => setLayout("horizontal")}
