@@ -7,18 +7,19 @@ import { useEditorStore } from "@/lib/store/editor-store";
 import { rowsToNodes } from "@/lib/tree/rowsToNodes";
 import { buildTree, treeToRawNodes } from "@/lib/tree/builder";
 import type { TreeNode } from "@/lib/tree/builder";
-import { OrgTreeChart } from "@/components/tree/OrgTreeChart";
+import { OrgTreeChart, type TreeLayout } from "@/components/tree/OrgTreeChart";
 import { NodeEditPanel } from "@/components/editor/NodeEditPanel";
 
 export default function EditorPage() {
   const router = useRouter();
   const files = useParseStore((s) => s.files);
   const mappings = useMappingStore((s) => s.mappings);
-  const { roots, isDirty, projectId, setRoots, markSaved } = useEditorStore();
+  const { roots, isDirty, projectId, setRoots, markSaved, moveNode } = useEditorStore();
   const [selectedNode, setSelectedNode] = useState<TreeNode | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [layout, setLayout] = useState<TreeLayout>("horizontal");
 
   // 파싱 결과 → editor 스토어 초기화 (최초 1회)
   const { roots: parsedRoots, orphans } = useMemo(() => {
@@ -95,6 +96,21 @@ export default function EditorPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold text-slate-800">조직도 편집기</h1>
           <div className="flex items-center gap-3">
+            {/* 레이아웃 토글 */}
+            <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs">
+              <button
+                onClick={() => setLayout("horizontal")}
+                className={`px-3 py-1.5 ${layout === "horizontal" ? "bg-blue-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50"}`}
+              >
+                가로
+              </button>
+              <button
+                onClick={() => setLayout("vertical")}
+                className={`px-3 py-1.5 ${layout === "vertical" ? "bg-blue-600 text-white" : "bg-white text-slate-600 hover:bg-slate-50"}`}
+              >
+                세로
+              </button>
+            </div>
             {orphans.length > 0 && (
               <span className="text-xs text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
                 부모 없는 노드 {orphans.length}개 루트로 배치됨
@@ -137,6 +153,8 @@ export default function EditorPage() {
             roots={roots}
             selectedId={selectedNode?.id ?? null}
             onSelect={setSelectedNode}
+            layout={layout}
+            onMove={moveNode}
           />
         </div>
       </div>
