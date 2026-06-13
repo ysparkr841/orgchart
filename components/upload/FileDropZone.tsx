@@ -1,24 +1,16 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { detectFileType, ACCEPTED_MIME_TYPES, ACCEPTED_EXTENSIONS } from "@/lib/parser/fileType";
 
 interface FileDropZoneProps {
   onFilesSelected: (files: File[]) => void;
   disabled?: boolean;
 }
 
-const ACCEPTED_TYPES = [
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/vnd.ms-excel",
-];
-const ACCEPTED_EXTENSIONS = ".xlsx,.xls";
-
-function isExcelFile(file: File): boolean {
-  return (
-    ACCEPTED_TYPES.includes(file.type) ||
-    file.name.endsWith(".xlsx") ||
-    file.name.endsWith(".xls")
-  );
+function isSupportedFile(file: File): boolean {
+  const type = detectFileType(file.name, file.type);
+  return type !== "unknown";
 }
 
 export function FileDropZone({ onFilesSelected, disabled = false }: FileDropZoneProps) {
@@ -28,7 +20,7 @@ export function FileDropZone({ onFilesSelected, disabled = false }: FileDropZone
   const handleFiles = useCallback(
     (fileList: FileList | null) => {
       if (!fileList || disabled) return;
-      const valid = Array.from(fileList).filter(isExcelFile);
+      const valid = Array.from(fileList).filter(isSupportedFile);
       if (valid.length > 0) onFilesSelected(valid);
     },
     [onFilesSelected, disabled],
@@ -93,8 +85,8 @@ export function FileDropZone({ onFilesSelected, disabled = false }: FileDropZone
         />
       </svg>
       <div className="text-center">
-        <p className="text-base font-medium">엑셀 파일을 끌어다 놓거나 클릭하여 선택</p>
-        <p className="mt-1 text-sm">.xlsx, .xls 파일 지원 · 여러 파일 동시 업로드 가능</p>
+        <p className="text-base font-medium">파일을 끌어다 놓거나 클릭하여 선택</p>
+        <p className="mt-1 text-sm">엑셀(xlsx/xls), CSV, 이미지(jpg/png), PDF · 여러 파일 동시 업로드 가능</p>
       </div>
       <input
         ref={inputRef}
@@ -104,6 +96,8 @@ export function FileDropZone({ onFilesSelected, disabled = false }: FileDropZone
         className="hidden"
         onChange={onInputChange}
         disabled={disabled}
+        // 허용된 MIME 타입 힌트 (브라우저 파일 대화상자용)
+        {...({ "data-accept-types": ACCEPTED_MIME_TYPES.join(",") } as object)}
       />
     </div>
   );
