@@ -7,6 +7,7 @@ import { useEditorStore } from "@/lib/store/editor-store";
 import { rowsToNodes } from "@/lib/tree/rowsToNodes";
 import { buildTree, treeToRawNodes } from "@/lib/tree/builder";
 import type { TreeNode } from "@/lib/tree/builder";
+import { searchNodes } from "@/lib/tree/search";
 import { OrgTreeChart, type TreeLayout } from "@/components/tree/OrgTreeChart";
 import { OrgListView } from "@/components/tree/OrgListView";
 import { NodeEditPanel } from "@/components/editor/NodeEditPanel";
@@ -24,6 +25,7 @@ export default function EditorPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [copied, setCopied] = useState(false);
   const [layout, setLayout] = useState<TreeLayout>("horizontal");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { roots: parsedRoots, orphans } = useMemo(() => {
     const allSheets = files.flatMap((f) =>
@@ -40,6 +42,11 @@ export default function EditorPage() {
       setRoots(parsedRoots);
     }
   }, [parsedRoots, roots.length, setRoots]);
+
+  const highlightIds = useMemo(
+    () => searchNodes(roots, searchQuery),
+    [roots, searchQuery],
+  );
 
   async function handleSave() {
     setIsSaving(true);
@@ -97,6 +104,28 @@ export default function EditorPage() {
       <div className="flex-1 p-6 overflow-hidden flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold text-slate-800">조직도 편집기</h1>
+          <div className="flex items-center gap-2 flex-1 max-w-xs mx-4">
+            <div className="relative w-full">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="이름/직책 검색…"
+                className="w-full pl-3 pr-16 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              {searchQuery ? (
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  <span className="text-xs text-slate-400">{highlightIds.size}건</span>
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="text-slate-400 hover:text-slate-600 text-xs leading-none"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          </div>
           <div className="flex items-center gap-3">
             {/* 뷰 전환 토글 */}
             <div className="flex rounded-lg border border-slate-200 overflow-hidden text-sm">
@@ -194,6 +223,7 @@ export default function EditorPage() {
                 onSelect={setSelectedNode}
                 layout={layout}
                 onMove={moveNode}
+                highlightIds={highlightIds}
               />
             </div>
           )}
@@ -203,6 +233,7 @@ export default function EditorPage() {
                 roots={roots}
                 selectedId={selectedNode?.id ?? null}
                 onSelect={setSelectedNode}
+                searchQuery={searchQuery}
               />
             </div>
           )}

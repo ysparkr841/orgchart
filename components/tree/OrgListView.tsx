@@ -19,15 +19,24 @@ interface Props {
   roots: TreeNode[];
   selectedId: string | null;
   onSelect: (node: TreeNode) => void;
+  searchQuery?: string;
 }
 
-export function OrgListView({ roots, selectedId, onSelect }: Props) {
-  const rows = flatten(roots);
+export function OrgListView({ roots, selectedId, onSelect, searchQuery }: Props) {
+  const allRows = flatten(roots);
+  const q = searchQuery?.trim().toLowerCase() ?? "";
+  const rows = q
+    ? allRows.filter(
+        ({ node }) =>
+          node.title.toLowerCase().includes(q) ||
+          (node.name && node.name.toLowerCase().includes(q)),
+      )
+    : allRows;
 
   if (rows.length === 0) {
     return (
       <div className="flex items-center justify-center h-full text-slate-400 text-sm">
-        노드가 없습니다
+        {q ? `"${searchQuery}" 검색 결과 없음` : "노드가 없습니다"}
       </div>
     );
   }
