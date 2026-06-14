@@ -1,9 +1,16 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-14 14:20 KST — 루프 에이전트 자동 사이클
+2026-06-14 14:55 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- 변경 이력 추적 구현: dev 커밋 완료 (d291ed8)
+  - prisma/schema.prisma — ProjectSnapshot 모델 추가 + 마이그레이션
+  - app/api/history/[projectId]/route.ts — GET(목록) + POST(복원) API
+  - app/api/tree/route.ts — 저장 시 스냅샷 자동 기록
+  - components/editor/HistoryPanel.tsx — 이력 패널 UI
+  - app/builder/editor/page.tsx — "이력" 버튼 토글 연동
+  - lib/history/snapshotUtils.ts — 직렬화 유틸 + 테스트 10개
 - 이미지 OCR 구현: dev 커밋 완료 (0212362)
   - lib/parser/imageParser.ts — qwen2.5vl:7b 비전 모델로 이미지 조직도 추출
   - lib/parser/fileType.ts — isImage() 헬퍼 추가
@@ -26,11 +33,10 @@
   - ⚠️ 사용자 설정 필요: GitHub Secrets에 VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID 추가
 
 ## 현재 열린 PR
-- PR #29 dev → main — 이미지 OCR 구현 (P0 완료)
-  URL: https://github.com/ysparkr841/orgchart/pull/29
+- PR #30 dev → main — 변경 이력 추적 (P3 완료)
+  URL: https://github.com/ysparkr841/orgchart/pull/30
 
 ## 다음 우선순위
-1. 사용자가 PR #29 머지
-2. P3: 변경 이력 추적 (노드 수정/삭제 내역 기록 및 복원)
-3. P2: HWP 파일 파싱
-4. Vercel GitHub Secrets 설정 (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID)
+1. 사용자가 PR #30 머지
+2. P2: HWP 파일 파싱
+3. Vercel GitHub Secrets 설정 (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID)
