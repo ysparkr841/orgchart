@@ -11,7 +11,7 @@ import { OrgTreeChart, type TreeLayout } from "@/components/tree/OrgTreeChart";
 import { OrgListView } from "@/components/tree/OrgListView";
 import { NodeEditPanel } from "@/components/editor/NodeEditPanel";
 
-type ViewMode = "tree" | "list";
+type ViewMode = "tree" | "list" | "split";
 
 export default function EditorPage() {
   const router = useRouter();
@@ -120,9 +120,19 @@ export default function EditorPage() {
               >
                 목록
               </button>
+              <button
+                onClick={() => setViewMode("split")}
+                className={`px-3 py-1.5 border-l border-slate-200 transition-colors ${
+                  viewMode === "split"
+                    ? "bg-slate-700 text-white"
+                    : "bg-white text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                분할
+              </button>
             </div>
-            {/* 레이아웃 토글 (트리 모드에서만) */}
-            {viewMode === "tree" && (
+            {/* 레이아웃 토글 (트리/분할 모드에서만) */}
+            {(viewMode === "tree" || viewMode === "split") && (
               <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs">
                 <button
                   onClick={() => setLayout("horizontal")}
@@ -175,21 +185,26 @@ export default function EditorPage() {
             </button>
           </div>
         </div>
-        <div className="flex-1 min-h-0">
-          {viewMode === "tree" ? (
-            <OrgTreeChart
-              roots={roots}
-              selectedId={selectedNode?.id ?? null}
-              onSelect={setSelectedNode}
-              layout={layout}
-              onMove={moveNode}
-            />
-          ) : (
-            <OrgListView
-              roots={roots}
-              selectedId={selectedNode?.id ?? null}
-              onSelect={setSelectedNode}
-            />
+        <div className="flex-1 min-h-0 flex gap-3">
+          {(viewMode === "tree" || viewMode === "split") && (
+            <div className={viewMode === "split" ? "flex-1 min-w-0" : "flex-1"}>
+              <OrgTreeChart
+                roots={roots}
+                selectedId={selectedNode?.id ?? null}
+                onSelect={setSelectedNode}
+                layout={layout}
+                onMove={moveNode}
+              />
+            </div>
+          )}
+          {(viewMode === "list" || viewMode === "split") && (
+            <div className={`${viewMode === "split" ? "w-96 border-l border-slate-200 bg-white rounded-lg" : "flex-1"} min-h-0 overflow-hidden`}>
+              <OrgListView
+                roots={roots}
+                selectedId={selectedNode?.id ?? null}
+                onSelect={setSelectedNode}
+              />
+            </div>
           )}
         </div>
       </div>
