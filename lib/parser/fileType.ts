@@ -26,6 +26,10 @@ export function isSpreadsheet(type: FileType): boolean {
   return type === "xlsx" || type === "xls" || type === "csv";
 }
 
+export function isImage(type: FileType): boolean {
+  return type === "image";
+}
+
 export const FILE_TYPE_LABELS: Record<FileType, string> = {
   xlsx: "XLSX",
   xls: "XLS",

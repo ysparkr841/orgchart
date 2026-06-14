@@ -1,9 +1,14 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-14 13:20 KST — 루프 에이전트 자동 사이클
+2026-06-14 14:20 KST — 루프 에이전트 자동 사이클
 
-## 완료된 작업
+## 완료된 작업 (최신순)
+- 이미지 OCR 구현: dev 커밋 완료 (0212362)
+  - lib/parser/imageParser.ts — qwen2.5vl:7b 비전 모델로 이미지 조직도 추출
+  - lib/parser/fileType.ts — isImage() 헬퍼 추가
+  - app/api/parse/route.ts — 이미지 파일 처리 연동
+  - 테스트 6개 추가, 전체 106개 통과
 - PR #21 (feat/share-link): 머지 완료
 - PR #22 (feat/list-view): 머지 완료
 - PR #23 (feat/avatar-tree): 머지 완료
@@ -21,14 +26,11 @@
   - ⚠️ 사용자 설정 필요: GitHub Secrets에 VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID 추가
 
 ## 현재 열린 PR
-- PR #28 dev → main — 팀 공유 + CI/CD + Vercel 배포 포함 누적 작업
-  URL: https://github.com/ysparkr841/orgchart/pull/28
+- PR #29 dev → main — 이미지 OCR 구현 (P0 완료)
+  URL: https://github.com/ysparkr841/orgchart/pull/29
 
 ## 다음 우선순위
-1. 사용자가 PR #28 머지
-2. Vercel 프로젝트 연결 후 GitHub Secrets 설정
-   - VERCEL_TOKEN: Vercel 대시보드 → Settings → Tokens
-   - VERCEL_ORG_ID: .vercel/project.json 또는 Vercel 대시보드
-   - VERCEL_PROJECT_ID: .vercel/project.json 또는 Vercel 대시보드
-3. P3: 변경 이력 추적
-4. P0 잔여: 이미지 OCR (qwen2.5vl:7b 설치 시)
+1. 사용자가 PR #29 머지
+2. P3: 변경 이력 추적 (노드 수정/삭제 내역 기록 및 복원)
+3. P2: HWP 파일 파싱
+4. Vercel GitHub Secrets 설정 (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID)
