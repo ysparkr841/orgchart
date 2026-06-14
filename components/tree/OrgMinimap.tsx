@@ -10,8 +10,7 @@ export interface MinimapHandle {
   setViewport(k: number, x: number, y: number, svgW: number, svgH: number): void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export const OrgMinimap = forwardRef<MinimapHandle, {}>(function OrgMinimap(_, ref) {
+export const OrgMinimap = forwardRef<MinimapHandle, object>(function OrgMinimap(_, ref) {
   const svgRef = useRef<SVGSVGElement>(null);
   const vpRef = useRef<SVGRectElement | null>(null);
 
