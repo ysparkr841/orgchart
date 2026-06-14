@@ -24,6 +24,7 @@ export default function EditorPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
   const [copied, setCopied] = useState(false);
+  const [copiedEdit, setCopiedEdit] = useState(false);
   const [layout, setLayout] = useState<TreeLayout>("horizontal");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -193,18 +194,32 @@ export default function EditorPage() {
               {isSaving ? "저장 중…" : isDirty ? "저장" : "저장됨"}
             </button>
             {projectId && (
-              <button
-                onClick={() => {
-                  const url = `${window.location.origin}/share/${projectId}`;
-                  void navigator.clipboard.writeText(url).then(() => {
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                  });
-                }}
-                className="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700"
-              >
-                {copied ? "복사됨!" : "공유 링크"}
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    const url = `${window.location.origin}/share/${projectId}`;
+                    void navigator.clipboard.writeText(url).then(() => {
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2000);
+                    });
+                  }}
+                  className="px-4 py-1.5 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700"
+                >
+                  {copied ? "복사됨!" : "공유 링크"}
+                </button>
+                <button
+                  onClick={() => {
+                    const url = `${window.location.origin}/share/${projectId}?edit=1`;
+                    void navigator.clipboard.writeText(url).then(() => {
+                      setCopiedEdit(true);
+                      setTimeout(() => setCopiedEdit(false), 2000);
+                    });
+                  }}
+                  className="px-4 py-1.5 bg-violet-600 text-white text-sm rounded-lg hover:bg-violet-700"
+                >
+                  {copiedEdit ? "복사됨!" : "편집 링크"}
+                </button>
+              </>
             )}
             <button
               onClick={() => router.push("/builder/export")}
