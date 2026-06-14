@@ -63,10 +63,10 @@
 ### 수익화 기반
 - [x] 무료/유료 플랜 구분
 - [x] 워터마크
-- [ ] 팀 공유
+- [x] 팀 공유
 
 ## P3 — Low
 - [ ] HRIS 연동
 - [ ] 변경 이력 추적
-- [ ] Vercel 배포 자동화
-- [ ] GitHub Actions CI/CD
+- [x] Vercel 배포 자동화
+- [x] GitHub Actions CI/CD
