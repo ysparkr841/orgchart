@@ -37,3 +37,13 @@ model Node {
   @@index([projectId])
   @@index([parentId])
 }
+
+// 저장 시점마다 전체 노드 목록을 스냅샷으로 보관 — 복원 기능에 사용
+model ProjectSnapshot {
+  id        String   @id @default(cuid())
+  projectId String
+  nodes     String   // JSON: RawNode[]
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+}

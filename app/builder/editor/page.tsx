@@ -11,6 +11,8 @@ import { searchNodes } from "@/lib/tree/search";
 import { OrgTreeChart, type TreeLayout } from "@/components/tree/OrgTreeChart";
 import { OrgListView } from "@/components/tree/OrgListView";
 import { NodeEditPanel } from "@/components/editor/NodeEditPanel";
+import { HistoryPanel } from "@/components/editor/HistoryPanel";
+import type { RawNode } from "@/lib/tree/builder";
 
 type ViewMode = "tree" | "list" | "split";
 
@@ -27,6 +29,7 @@ export default function EditorPage() {
   const [copiedEdit, setCopiedEdit] = useState(false);
   const [layout, setLayout] = useState<TreeLayout>("horizontal");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showHistory, setShowHistory] = useState(false);
 
   const { roots: parsedRoots, orphans } = useMemo(() => {
     const allSheets = files.flatMap((f) =>
@@ -70,6 +73,12 @@ export default function EditorPage() {
     } finally {
       setIsSaving(false);
     }
+  }
+
+  function handleRestoreNodes(rawNodes: unknown[]) {
+    const { roots: restoredRoots } = buildTree(rawNodes as RawNode[]);
+    setRoots(restoredRoots);
+    setSelectedNode(null);
   }
 
   if (files.length === 0) {
@@ -186,6 +195,18 @@ export default function EditorPage() {
             {saveError && (
               <span className="text-xs text-red-600">{saveError}</span>
             )}
+            {projectId && (
+              <button
+                onClick={() => setShowHistory((v) => !v)}
+                className={`px-4 py-1.5 text-sm rounded-lg border ${
+                  showHistory
+                    ? "bg-amber-50 border-amber-300 text-amber-700"
+                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                이력
+              </button>
+            )}
             <button
               onClick={handleSave}
               disabled={isSaving || !isDirty}
@@ -255,16 +276,22 @@ export default function EditorPage() {
         </div>
       </div>
 
-      <aside className="w-72 border-l border-slate-200 bg-white p-5 overflow-y-auto">
-        {selectedNode ? (
-          <NodeEditPanel
-            node={selectedNode}
-            onClose={() => setSelectedNode(null)}
-          />
+      <aside className="w-72 border-l border-slate-200 bg-white overflow-hidden flex flex-col">
+        {showHistory && projectId ? (
+          <HistoryPanel projectId={projectId} onRestore={handleRestoreNodes} />
         ) : (
-          <p className="text-sm text-slate-400 mt-2">
-            노드를 클릭하면 편집 패널이 표시됩니다
-          </p>
+          <div className="p-5 overflow-y-auto flex-1">
+            {selectedNode ? (
+              <NodeEditPanel
+                node={selectedNode}
+                onClose={() => setSelectedNode(null)}
+              />
+            ) : (
+              <p className="text-sm text-slate-400 mt-2">
+                노드를 클릭하면 편집 패널이 표시됩니다
+              </p>
+            )}
+          </div>
         )}
       </aside>
     </div>
