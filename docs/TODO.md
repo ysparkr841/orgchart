@@ -66,7 +66,7 @@
 - [x] ?� 공유
 
 ## P3 ??Low
-- [ ] HRIS ?�동
+- [x] HRIS 연동 — XML/JSON 파싱, PR #32
 - [x] 변�??�력 추적
 - [x] Vercel 배포 ?�동??
 - [x] GitHub Actions CI/CD

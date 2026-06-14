@@ -1,9 +1,16 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-14 15:22 KST — 루프 에이전트 자동 사이클
+2026-06-14 15:52 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- HRIS 연동 구현: dev 커밋 완료 (b59c82a)
+  - lib/parser/hrisParser.ts — XML(<employee>) + JSON(employees/data/members) 파싱
+  - lib/parser/hrisParser.test.ts — 9개 테스트 (전체 142개 통과)
+  - lib/parser/fileType.ts — xml/json 타입 + isHris() 헬퍼 + MIME 감지 + 확장자 지원
+  - lib/parser/fileType.test.ts — xml/json + isHris() 테스트 추가
+  - app/api/parse/route.ts — isHris() 분기 + parseHris 연동
+  - components/upload/FileList.tsx — xml/json 인디고 뱃지 추가
 - HWP/HWPX 파일 파싱 구현: dev 커밋 완료 (0b1f195)
   - lib/parser/hwpParser.ts — @ssabrojs/hwpxjs 기반 텍스트 추출 + textParser 연동
   - lib/parser/hwpParser.test.ts — 6개 테스트 (전체 127개 통과)
@@ -28,10 +35,10 @@
 - PR #24 dev → main: 머지 완료 (분할 뷰 + React/Vue 코드 익스포트)
 
 ## 현재 열린 PR
-- PR #31 dev → main — HWP/HWPX 파싱 + 누적 작업
-  URL: https://github.com/ysparkr841/orgchart/pull/31
+- PR #32 dev → main — HRIS 연동 + 누적 작업
+  URL: https://github.com/ysparkr841/orgchart/pull/32
 
 ## 다음 우선순위
-1. 사용자가 PR #31 머지
-2. P3: HRIS 연동
-3. Vercel GitHub Secrets 설정 (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID)
+1. 사용자가 PR #32 머지
+2. TODO.md 백로그 소진 — P0~P3 전체 완료 상태
+3. 추가 기능: 테스트 커버리지 보강 또는 신규 백로그 항목 추가 필요

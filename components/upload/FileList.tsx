@@ -23,6 +23,8 @@ const FILE_TYPE_COLORS: Record<FileType, string> = {
   pdf: "bg-orange-100 text-orange-700",
   hwp: "bg-blue-100 text-blue-700",
   hwpx: "bg-blue-100 text-blue-700",
+  xml: "bg-indigo-100 text-indigo-700",
+  json: "bg-indigo-100 text-indigo-700",
   unknown: "bg-gray-100 text-gray-600",
 };
 
