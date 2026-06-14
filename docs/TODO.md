@@ -68,5 +68,5 @@
 ## P3 — Low
 - [ ] HRIS 연동
 - [ ] 변경 이력 추적
-- [ ] Vercel 배포 자동화
-- [ ] GitHub Actions CI/CD
+- [x] Vercel 배포 자동화
+- [x] GitHub Actions CI/CD
