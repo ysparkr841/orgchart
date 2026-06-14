@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@ssabrojs/hwpxjs": "^0.4.0",
     "@tanstack/react-query": "^5.59.0",
     "d3": "^7.9.0",
     "html-to-image": "^1.11.13",

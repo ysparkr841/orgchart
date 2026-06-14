@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { parseExcel } from "@/lib/parser/excel";
 import { parsePdf } from "@/lib/parser/pdfParser";
 import { parseImage } from "@/lib/parser/imageParser";
-import { detectFileType, isSpreadsheet, isImage, type FileType } from "@/lib/parser/fileType";
+import { parseHwp } from "@/lib/parser/hwpParser";
+import { detectFileType, isSpreadsheet, isImage, isHwp, type FileType } from "@/lib/parser/fileType";
 import type { SheetResult } from "@/lib/parser/excel";
 
 export interface ParseFileResult {
@@ -50,6 +51,12 @@ export async function POST(req: NextRequest) {
       if (isImage(fileType)) {
         const buffer = Buffer.from(await file.arrayBuffer());
         const { sheets, warnings } = await parseImage(buffer);
+        return { fileName: file.name, fileType, sheets, warnings };
+      }
+
+      if (isHwp(fileType)) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const { sheets, warnings } = await parseHwp(buffer);
         return { fileName: file.name, fileType, sheets, warnings };
       }
 

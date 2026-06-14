@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { detectFileType, isSpreadsheet } from "./fileType";
+import { detectFileType, isSpreadsheet, isHwp } from "./fileType";
 
 describe("detectFileType", () => {
   it("확장자로 xlsx 감지", () => {
@@ -58,5 +58,33 @@ describe("isSpreadsheet", () => {
     expect(isSpreadsheet("image")).toBe(false);
     expect(isSpreadsheet("pdf")).toBe(false);
     expect(isSpreadsheet("unknown")).toBe(false);
+  });
+});
+
+describe("detectFileType — hwp/hwpx", () => {
+  it("확장자로 hwp 감지", () => {
+    expect(detectFileType("조직도.hwp")).toBe("hwp");
+  });
+
+  it("확장자로 hwpx 감지", () => {
+    expect(detectFileType("조직도.hwpx")).toBe("hwpx");
+  });
+
+  it("HWP MIME 타입으로 감지", () => {
+    expect(detectFileType("file", "application/x-hwp")).toBe("hwp");
+    expect(detectFileType("file", "application/haansofthwp")).toBe("hwp");
+  });
+});
+
+describe("isHwp", () => {
+  it("hwp/hwpx는 true", () => {
+    expect(isHwp("hwp")).toBe(true);
+    expect(isHwp("hwpx")).toBe(true);
+  });
+
+  it("다른 타입은 false", () => {
+    expect(isHwp("pdf")).toBe(false);
+    expect(isHwp("xlsx")).toBe(false);
+    expect(isHwp("unknown")).toBe(false);
   });
 });
