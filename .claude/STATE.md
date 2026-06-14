@@ -1,7 +1,7 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-14 11:22 KST — 루프 에이전트 자동 사이클
+2026-06-14 11:55 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업
 - PR #21 (feat/share-link): 머지 완료
@@ -15,13 +15,18 @@
   - app/api/parse/text/route.ts — POST 엔드포인트
   - app/builder/upload/page.tsx — 텍스트 직접 입력 UI
   - OrgMinimap.tsx lint 오류 수정
+- PDF 파싱: dev 커밋 완료 (d1727e5)
+  - lib/parser/pdfParser.ts — pdfjs-dist 텍스트 추출 + parseText 연동
+  - lib/parser/pdfParser.test.ts — 5개 테스트 (95개 전체 통과)
+  - app/api/parse/route.ts — PDF fileType 분기 처리
+  - next.config.mjs — canvas alias=false (pdfjs-dist 서버 사이드)
 
 ## 현재 열린 PR
-- PR #27 dev → main — 자유 텍스트 입력 파싱 (누적 작업 반영)
+- PR #27 dev → main — 자유 텍스트 파싱 + PDF 파싱 (누적 작업 반영)
   URL: https://github.com/ysparkr841/orgchart/pull/27
 
 ## 다음 우선순위
 1. 사용자가 PR #27 머지
-2. P2: PDF 파싱
-3. P2: HWP 파일 파싱
-4. P2: 무료/유료 플랜 구분
+2. P2: HWP 파일 파싱
+3. P2: 무료/유료 플랜 구분
+4. P2: 워터마크
