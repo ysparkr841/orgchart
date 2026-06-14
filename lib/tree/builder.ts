@@ -3,6 +3,7 @@ export interface RawNode {
   title: string;
   name?: string;
   avatarUrl?: string;
+  color?: string;
   parentId?: string | null;
   order?: number;
   meta?: Record<string, unknown>;
@@ -13,6 +14,7 @@ export interface TreeNode {
   title: string;
   name?: string;
   avatarUrl?: string;
+  color?: string;
   order: number;
   meta?: Record<string, unknown>;
   children: TreeNode[];
@@ -30,6 +32,7 @@ function toTreeNode(raw: RawNode): TreeNode {
     title: raw.title,
     name: raw.name,
     avatarUrl: raw.avatarUrl,
+    color: raw.color,
     order: raw.order ?? 0,
     meta: raw.meta,
     children: [],

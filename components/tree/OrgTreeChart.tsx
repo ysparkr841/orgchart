@@ -163,11 +163,13 @@ export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal
       .attr("fill", (d) => {
         if (d.data.id === selectedId) return "#3b82f6";
         if (isSearchActive && highlightIds!.has(d.data.id)) return "#fef3c7";
+        if (d.data.color) return d.data.color;
         return "#f1f5f9";
       })
       .attr("stroke", (d) => {
         if (d.data.id === selectedId) return "#2563eb";
         if (isSearchActive && highlightIds!.has(d.data.id)) return "#f59e0b";
+        if (d.data.color) return d.data.color;
         return "#cbd5e1";
       })
       .attr("stroke-width", (d) =>
