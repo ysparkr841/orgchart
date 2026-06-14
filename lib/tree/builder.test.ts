@@ -50,6 +50,16 @@ describe("buildTree", () => {
     expect(roots).toHaveLength(0);
     expect(orphans).toHaveLength(0);
   });
+
+  it("color 필드가 TreeNode에 전파된다", () => {
+    const nodes: RawNode[] = [
+      { id: "1", title: "본사", parentId: null, color: "#dbeafe" },
+      { id: "2", title: "개발팀", parentId: "1", color: "#dcfce7" },
+    ];
+    const { roots } = buildTree(nodes);
+    expect(roots[0].color).toBe("#dbeafe");
+    expect(roots[0].children[0].color).toBe("#dcfce7");
+  });
 });
 
 describe("flattenTree", () => {

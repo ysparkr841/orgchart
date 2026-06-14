@@ -6,6 +6,7 @@ import { useEditorStore } from "@/lib/store/editor-store";
 import { treeToRawNodes } from "@/lib/tree/builder";
 import { OrgTreeChart } from "@/components/tree/OrgTreeChart";
 import { jsPDF } from "jspdf";
+import { generateReactCode, generateVueCode } from "@/lib/export/codeExporter";
 
 export default function ExportPage() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function ExportPage() {
   const [pngError, setPngError] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [codeError, setCodeError] = useState<string | null>(null);
 
   if (roots.length === 0) {
     return (
@@ -63,6 +65,24 @@ export default function ExportPage() {
     }
   }
 
+  function downloadCode(type: "react" | "vue") {
+    setCodeError(null);
+    try {
+      const code = type === "react" ? generateReactCode(roots) : generateVueCode(roots);
+      const ext = type === "react" ? "tsx" : "vue";
+      const filename = `OrgChart.${ext}`;
+      const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setCodeError("코드 생성에 실패했습니다.");
+    }
+  }
+
   async function downloadPdf() {
     if (!treeRef.current) return;
     setPdfLoading(true);
@@ -102,14 +122,26 @@ export default function ExportPage() {
           <h1 className="text-xl font-semibold text-slate-800">내보내기</h1>
         </div>
         <div className="flex items-center gap-3">
-          {(pngError || pdfError) && (
-            <span className="text-xs text-red-600">{pngError ?? pdfError}</span>
+          {(pngError || pdfError || codeError) && (
+            <span className="text-xs text-red-600">{pngError ?? pdfError ?? codeError}</span>
           )}
           <button
             onClick={downloadJson}
             className="px-4 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm rounded-lg hover:bg-slate-50"
           >
             JSON 다운로드
+          </button>
+          <button
+            onClick={() => downloadCode("react")}
+            className="px-4 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm rounded-lg hover:bg-slate-50"
+          >
+            React 코드
+          </button>
+          <button
+            onClick={() => downloadCode("vue")}
+            className="px-4 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm rounded-lg hover:bg-slate-50"
+          >
+            Vue 코드
           </button>
           <button
             onClick={downloadPng}

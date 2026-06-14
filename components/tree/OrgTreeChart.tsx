@@ -11,6 +11,7 @@ interface Props {
   onSelect: (node: TreeNode) => void;
   layout?: TreeLayout;
   onMove?: (nodeId: string, newParentId: string | null) => void;
+  highlightIds?: Set<string>;
 }
 
 interface NodePos {
@@ -38,7 +39,7 @@ function collectSubtreeIds(node: TreeNode): Set<string> {
   return ids;
 }
 
-export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal", onMove }: Props) {
+export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal", onMove, highlightIds }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const nodePosRef = useRef<NodePos[]>([]);
 
@@ -136,6 +137,8 @@ export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal
       .attr("dy", "0.35em").attr("text-anchor", "middle")
       .attr("font-size", "12px").attr("fill", "#fff");
 
+    const isSearchActive = (highlightIds?.size ?? 0) > 0;
+
     const nodeG = svg
       .append("g")
       .selectAll<SVGGElement, d3.HierarchyPointNode<TreeNode>>("g")
@@ -146,16 +149,32 @@ export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal
           ? `translate(${d.x},${d.y})`
           : `translate(${d.y},${d.x})`,
       )
-      .style("cursor", onMove ? "grab" : "pointer");
+      .style("cursor", onMove ? "grab" : "pointer")
+      .style("opacity", (d) => {
+        if (!isSearchActive || d.data.id === "__root__") return 1;
+        return highlightIds!.has(d.data.id) ? 1 : 0.2;
+      });
 
     nodeG
       .append("rect")
       .attr("x", -75).attr("y", -22)
       .attr("width", 170).attr("height", 44)
       .attr("rx", 8)
-      .attr("fill", (d) => d.data.id === selectedId ? "#3b82f6" : "#f1f5f9")
-      .attr("stroke", (d) => d.data.id === selectedId ? "#2563eb" : "#cbd5e1")
-      .attr("stroke-width", 1.5);
+      .attr("fill", (d) => {
+        if (d.data.id === selectedId) return "#3b82f6";
+        if (isSearchActive && highlightIds!.has(d.data.id)) return "#fef3c7";
+        if (d.data.color) return d.data.color;
+        return "#f1f5f9";
+      })
+      .attr("stroke", (d) => {
+        if (d.data.id === selectedId) return "#2563eb";
+        if (isSearchActive && highlightIds!.has(d.data.id)) return "#f59e0b";
+        if (d.data.color) return d.data.color;
+        return "#cbd5e1";
+      })
+      .attr("stroke-width", (d) =>
+        isSearchActive && highlightIds!.has(d.data.id) ? 2 : 1.5,
+      );
 
     const realNodes = nodeG.filter((d) => d.data.id !== "__root__");
 
@@ -257,7 +276,7 @@ export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal
       });
 
     nodeG.call(drag);
-  }, [roots, selectedId, onSelect, layout, onMove]);
+  }, [roots, selectedId, onSelect, layout, onMove, highlightIds]);
 
   if (roots.length === 0) {
     return (

@@ -9,10 +9,22 @@ interface Props {
   onClose: () => void;
 }
 
+const COLOR_PRESETS = [
+  { label: "기본", value: "" },
+  { label: "파랑", value: "#dbeafe" },
+  { label: "초록", value: "#dcfce7" },
+  { label: "노랑", value: "#fef9c3" },
+  { label: "주황", value: "#ffedd5" },
+  { label: "빨강", value: "#fee2e2" },
+  { label: "보라", value: "#ede9fe" },
+  { label: "핑크", value: "#fce7f3" },
+];
+
 export function NodeEditPanel({ node, onClose }: Props) {
   const [title, setTitle] = useState(node.title);
   const [name, setName] = useState(node.name ?? "");
   const [avatarUrl, setAvatarUrl] = useState(node.avatarUrl ?? "");
+  const [color, setColor] = useState(node.color ?? "");
   const { roots, updateNode, deleteNode, addNode, moveNode } = useEditorStore();
 
   const allNodes = flattenTree(roots).filter((n) => n.id !== node.id);
@@ -22,6 +34,7 @@ export function NodeEditPanel({ node, onClose }: Props) {
       title,
       name: name || undefined,
       avatarUrl: avatarUrl || undefined,
+      color: color || undefined,
     });
   }
 
@@ -97,6 +110,35 @@ export function NodeEditPanel({ node, onClose }: Props) {
           />
         )}
       </div>
+      {/* 노드 색상 */}
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-slate-500">노드 색상</label>
+        <div className="flex flex-wrap gap-1.5">
+          {COLOR_PRESETS.map((preset) => (
+            <button
+              key={preset.value}
+              title={preset.label}
+              onClick={() => setColor(preset.value)}
+              className={`w-6 h-6 rounded border-2 transition-all ${
+                color === preset.value
+                  ? "border-blue-500 scale-110"
+                  : "border-slate-300 hover:border-slate-400"
+              }`}
+              style={{
+                background: preset.value || "#f1f5f9",
+              }}
+            />
+          ))}
+          <input
+            type="color"
+            value={color || "#f1f5f9"}
+            onChange={(e) => setColor(e.target.value)}
+            title="직접 선택"
+            className="w-6 h-6 rounded border border-slate-300 cursor-pointer p-0"
+          />
+        </div>
+      </div>
+
       <button
         onClick={handleSaveEdit}
         className="bg-blue-600 text-white text-sm py-1 rounded hover:bg-blue-700"
