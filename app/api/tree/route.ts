@@ -70,6 +70,11 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    // 저장 시점 스냅샷 기록 (변경 이력 추적)
+    await prisma.projectSnapshot.create({
+      data: { projectId: pid!, nodes: JSON.stringify(sorted) },
+    });
+
     return NextResponse.json({ projectId: pid }, { status: 201 });
   } catch (err) {
     console.error("[POST /api/tree]", err);
