@@ -1,5 +1,7 @@
 import type { ExcelParseResult } from "./excel";
 import { parseText } from "./textParser";
+import path from "path";
+import { pathToFileURL } from "url";
 
 interface TextItem {
   str: string;
@@ -8,8 +10,15 @@ interface TextItem {
 
 async function extractTextFromPdf(buffer: Buffer): Promise<string> {
   const { getDocument, GlobalWorkerOptions } = await import("pdfjs-dist");
-  // 서버 사이드에서 Worker 없이 실행
-  GlobalWorkerOptions.workerSrc = "";
+  // Node.js 서버사이드: fake worker 오류 방지를 위해 실제 worker 파일 경로 지정
+  const workerPath = path.join(
+    process.cwd(),
+    "node_modules",
+    "pdfjs-dist",
+    "build",
+    "pdf.worker.mjs",
+  );
+  GlobalWorkerOptions.workerSrc = pathToFileURL(workerPath).href;
 
   const data = new Uint8Array(buffer);
   const loadingTask = getDocument({ data, useSystemFonts: true });
