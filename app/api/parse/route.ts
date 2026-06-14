@@ -3,7 +3,8 @@ import { parseExcel } from "@/lib/parser/excel";
 import { parsePdf } from "@/lib/parser/pdfParser";
 import { parseImage } from "@/lib/parser/imageParser";
 import { parseHwp } from "@/lib/parser/hwpParser";
-import { detectFileType, isSpreadsheet, isImage, isHwp, type FileType } from "@/lib/parser/fileType";
+import { parseHris } from "@/lib/parser/hrisParser";
+import { detectFileType, isSpreadsheet, isImage, isHwp, isHris, type FileType } from "@/lib/parser/fileType";
 import type { SheetResult } from "@/lib/parser/excel";
 
 export interface ParseFileResult {
@@ -57,6 +58,12 @@ export async function POST(req: NextRequest) {
       if (isHwp(fileType)) {
         const buffer = Buffer.from(await file.arrayBuffer());
         const { sheets, warnings } = await parseHwp(buffer);
+        return { fileName: file.name, fileType, sheets, warnings };
+      }
+
+      if (isHris(fileType)) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const { sheets, warnings } = await parseHris(buffer);
         return { fileName: file.name, fileType, sheets, warnings };
       }
 
