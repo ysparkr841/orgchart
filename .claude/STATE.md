@@ -1,9 +1,14 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-14 16:50 KST — 루프 에이전트 자동 사이클
+2026-06-14 17:20 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- Zustand 스토어 단위 테스트 추가: dev 커밋 완료 (676095a)
+  - lib/store/editor-store.test.ts — 20개 테스트 (addNode/deleteNode/updateNode/moveNode/setRoots/markSaved 전체 커버)
+  - lib/store/mapping-store.test.ts — 8개 테스트 (setMapping upsert, getMapping, clearMappings)
+  - lib/store/parse-store.test.ts — 8개 테스트 (addFiles, updateFile, clearFiles)
+  - 전체 테스트: 154개 → 190개 (17 → 20 파일)
 - rowsToNodes 단위 테스트 추가: dev 커밋 완료 (9c99af0)
   - lib/tree/rowsToNodes.test.ts — 12개 테스트 (빈 매핑, titleColumn/nameColumn, parentId 연결, 자기참조 방지, 멀티시트 등)
   - 전체 테스트: 142개 → 154개
@@ -25,12 +30,11 @@
 - PR #27 dev → main: 머지 완료 (자유 텍스트 파싱 + PDF 파싱 + 플랜/워터마크)
 
 ## 현재 열린 PR
-- PR #34 dev → main — 테스트 커버리지 보강 (rowsToNodes 단위 테스트 12개)
-  URL: https://github.com/ysparkr841/orgchart/pull/34
+- PR #35 dev → main — Zustand 스토어 테스트 추가 (editor/mapping/parse-store, 36개)
+  URL: https://github.com/ysparkr841/orgchart/pull/35
 
 ## 다음 우선순위
-1. PR #34 머지 대기
+1. PR #35 머지 대기
 2. 추가 테스트 커버리지 보강 후보:
-   - lib/export/watermark.ts (브라우저 API 의존 — jsdom 환경 필요)
-   - lib/store/editor-store.ts, mapping-store.ts, parse-store.ts (Zustand 스토어)
+   - lib/export/watermark.ts (브라우저 Canvas API 의존 — jsdom 환경 필요, 선택적)
 3. 신규 기능 백로그 항목 추가 검토 (TODO.md P0~P3 전체 완료)
