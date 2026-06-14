@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parseExcel } from "@/lib/parser/excel";
 import { parsePdf } from "@/lib/parser/pdfParser";
-import { detectFileType, isSpreadsheet, type FileType } from "@/lib/parser/fileType";
+import { parseImage } from "@/lib/parser/imageParser";
+import { detectFileType, isSpreadsheet, isImage, type FileType } from "@/lib/parser/fileType";
 import type { SheetResult } from "@/lib/parser/excel";
 
 export interface ParseFileResult {
@@ -46,12 +47,17 @@ export async function POST(req: NextRequest) {
         return { fileName: file.name, fileType, sheets, warnings };
       }
 
-      // 이미지: OCR 미지원 → placeholder 반환
+      if (isImage(fileType)) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const { sheets, warnings } = await parseImage(buffer);
+        return { fileName: file.name, fileType, sheets, warnings };
+      }
+
       return {
         fileName: file.name,
         fileType,
         sheets: [],
-        warnings: ["이미지 파일 파싱은 추후 지원 예정입니다. 수동으로 데이터를 입력해 주세요."],
+        warnings: ["지원하지 않는 파일 형식입니다. 수동으로 데이터를 입력해 주세요."],
       };
     }),
   );
