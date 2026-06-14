@@ -7,10 +7,13 @@ import { treeToRawNodes } from "@/lib/tree/builder";
 import { OrgTreeChart } from "@/components/tree/OrgTreeChart";
 import { jsPDF } from "jspdf";
 import { generateReactCode, generateVueCode } from "@/lib/export/codeExporter";
+import { usePlanStore } from "@/lib/store/plan-store";
+import { applyWatermark } from "@/lib/export/watermark";
 
 export default function ExportPage() {
   const router = useRouter();
   const { roots, projectId } = useEditorStore();
+  const { plan, setPlan, isFree } = usePlanStore();
   const treeRef = useRef<HTMLDivElement>(null);
   const [pngLoading, setPngLoading] = useState(false);
   const [pngError, setPngError] = useState<string | null>(null);
@@ -50,10 +53,11 @@ export default function ExportPage() {
     setPngLoading(true);
     setPngError(null);
     try {
-      const dataUrl = await toPng(treeRef.current, {
+      let dataUrl = await toPng(treeRef.current, {
         backgroundColor: "#f8fafc",
         pixelRatio: 2,
       });
+      if (isFree()) dataUrl = await applyWatermark(dataUrl);
       const a = document.createElement("a");
       a.href = dataUrl;
       a.download = `orgchart-${projectId ?? "export"}.png`;
@@ -88,10 +92,11 @@ export default function ExportPage() {
     setPdfLoading(true);
     setPdfError(null);
     try {
-      const dataUrl = await toPng(treeRef.current, {
+      let dataUrl = await toPng(treeRef.current, {
         backgroundColor: "#f8fafc",
         pixelRatio: 2,
       });
+      if (isFree()) dataUrl = await applyWatermark(dataUrl);
       const img = new Image();
       img.src = dataUrl;
       await new Promise<void>((resolve) => { img.onload = () => resolve(); });
@@ -120,10 +125,37 @@ export default function ExportPage() {
             ← 편집기로 돌아가기
           </button>
           <h1 className="text-xl font-semibold text-slate-800">내보내기</h1>
+          {/* 플랜 배지 */}
+          <span
+            className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+              plan === "pro"
+                ? "bg-amber-100 text-amber-700"
+                : "bg-slate-100 text-slate-500"
+            }`}
+          >
+            {plan === "pro" ? "Pro" : "무료"}
+          </span>
         </div>
         <div className="flex items-center gap-3">
           {(pngError || pdfError || codeError) && (
             <span className="text-xs text-red-600">{pngError ?? pdfError ?? codeError}</span>
+          )}
+          {/* 플랜 전환 (데모용) */}
+          {plan === "free" ? (
+            <button
+              onClick={() => setPlan("pro")}
+              className="px-3 py-1.5 bg-amber-500 text-white text-xs font-medium rounded-lg hover:bg-amber-600"
+              title="Pro 플랜으로 업그레이드하면 워터마크 없이 내보낼 수 있습니다"
+            >
+              Pro 업그레이드 (데모)
+            </button>
+          ) : (
+            <button
+              onClick={() => setPlan("free")}
+              className="px-3 py-1.5 bg-slate-200 text-slate-600 text-xs rounded-lg hover:bg-slate-300"
+            >
+              무료로 전환
+            </button>
           )}
           <button
             onClick={downloadJson}
@@ -159,6 +191,19 @@ export default function ExportPage() {
           </button>
         </div>
       </header>
+
+      {/* 무료 플랜 안내 배너 */}
+      {plan === "free" && (
+        <div className="px-6 py-2 bg-amber-50 border-b border-amber-200 text-xs text-amber-700 flex items-center gap-2">
+          <span>무료 플랜: PNG/PDF 내보내기 시 워터마크가 추가됩니다.</span>
+          <button
+            onClick={() => setPlan("pro")}
+            className="underline font-medium hover:text-amber-900"
+          >
+            Pro로 업그레이드
+          </button>
+        </div>
+      )}
 
       {/* 트리 미리보기 */}
       <main className="flex-1 overflow-auto p-6">
