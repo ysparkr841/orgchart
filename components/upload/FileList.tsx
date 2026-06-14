@@ -21,6 +21,8 @@ const FILE_TYPE_COLORS: Record<FileType, string> = {
   csv: "bg-teal-100 text-teal-700",
   image: "bg-purple-100 text-purple-700",
   pdf: "bg-orange-100 text-orange-700",
+  hwp: "bg-blue-100 text-blue-700",
+  hwpx: "bg-blue-100 text-blue-700",
   unknown: "bg-gray-100 text-gray-600",
 };
 
