@@ -1,9 +1,20 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-17 16:23 KST — 루프 에이전트 자동 사이클
+2026-06-17 16:46 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- 접근성(a11y) 개선: dev 커밋 완료 (c7daab7)
+  - FileDropZone: aria-disabled, Space 키 지원
+  - OrgListView: table aria-label, th scope, tr aria-selected + Enter/Space 키보드 내비게이션
+  - NodeEditPanel: label-input htmlFor/id 연결, 버튼 type="button", aria-label, aria-pressed
+  - HistoryPanel: 에러 role="alert", 목록 aria-label, 새로고침 버튼 aria-label
+  - 테스트 12개 추가: 326개 → 338개
+- 검색 결과 자동 pan 기능 추가: dev 커밋 완료 (c8403db)
+  - OrgTreeChart에 focusId prop 추가 — 검색 시 첫 번째 매칭 노드로 D3 zoom 자동 이동
+  - 에디터 페이지: highlightIds 첫 번째 결과를 focusId로 계산해 OrgTreeChart에 전달
+  - OrgTreeChart.test.tsx: focusId 렌더링 테스트 추가
+  - 전체 테스트: 325개 → 326개
 - CSV 내보내기 기능 추가: dev 커밋 완료 (ffd1281)
   - lib/export/csvExporter.ts — 순수 문자열 처리 기반 RawNode[] → CSV 변환
   - GET /api/export?format=csv 지원 (기존 json/xlsx 유지)
@@ -80,5 +91,5 @@
   URL: https://github.com/ysparkr841/orgchart/pull/40
 
 ## 다음 우선순위
-1. PR #40 머지 대기
-2. 추가 개선 후보: 트리 노드 검색 하이라이트, 접근성(a11y) 개선
+1. PR #40 머지 대기 (접근성 개선 포함)
+2. 추가 개선 후보: 코드 품질 개선 (중복 제거, 타입 강화)
