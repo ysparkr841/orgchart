@@ -1,9 +1,19 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-17 16:55 KST — 루프 에이전트 자동 사이클
+2026-06-17 17:14 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- OrgTreeChart 컴포넌트 분리: dev 커밋 완료 (e4c9ded)
+  - hooks/useOrgTreeD3.ts 신규 — D3 렌더링·드래그·줌 로직 전체 추출
+  - components/tree/ZoomControls.tsx 신규 — 줌 버튼 UI 컴포넌트
+  - OrgTreeChart.tsx: 363줄 → 36줄 (200줄 초과 해소)
+  - lib/tree/builder.ts: TreeLayout 타입 export 추가
+  - 전체 테스트 343개 유지
+- API 라우트 에러 처리 헬퍼화: dev 커밋 완료 (9171af0)
+  - lib/api/routeHelpers.ts 신규 생성 (apiError · serverError · parseJsonBody)
+  - 6개 API 라우트 적용 — NextResponse.json 중복 및 console.error+500 패턴 제거
+  - routeHelpers.test.ts 5개 테스트 추가 (338 → 343개)
 - exporter 공통 헬퍼 추출: dev 커밋 완료 (1f0c655)
   - lib/export/exportHelpers.ts 신규 생성 (EXPORT_HEADERS + nodeToRow)
   - csvExporter.ts, excelExporter.ts — 중복 HEADERS 상수 및 rows 매핑 로직 제거
@@ -95,5 +105,5 @@
   URL: https://github.com/ysparkr841/orgchart/pull/40
 
 ## 다음 우선순위
-1. PR #40 머지 대기 (CSV 내보내기 + 접근성 개선 + exporter 리팩토링 포함)
-2. 추가 개선 후보: API 라우트 JSON/FormData 파싱 에러 처리 헬퍼화
+1. PR #40 머지 대기 (CSV 내보내기 + 접근성 개선 + exporter 리팩토링 + API 헬퍼 + OrgTreeChart 분리 포함)
+2. 추가 개선 후보: ZoomControls 테스트 추가, useOrgTreeD3 테스트 보강
