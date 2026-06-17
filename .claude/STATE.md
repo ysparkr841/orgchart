@@ -1,9 +1,14 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-17 14:35 KST — 루프 에이전트 자동 사이클
+2026-06-17 14:46 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- 나머지 API 라우트 단위 테스트 추가: dev 커밋 완료 (24b7968)
+  - app/api/tree/[id]/route.test.ts — 3개 테스트 (단일 프로젝트 조회, 404, meta 파싱)
+  - app/api/history/[projectId]/route.test.ts — 7개 테스트 (GET 스냅샷 목록, POST 복원 흐름)
+  - app/api/export/route.test.ts — 3개 테스트 (JSON attachment 다운로드)
+  - 전체 테스트: 209개 → 222개 (23 → 26 파일)
 - API 라우트 단위 테스트 추가: dev 커밋 완료 (3664537)
   - vitest.config.ts — resolve.alias `@` → 프로젝트 루트 추가
   - app/api/parse/text/route.test.ts — 5개 테스트 (vi.hoisted + vi.mock 패턴)
@@ -36,13 +41,10 @@
 - PR #27 dev → main: 머지 완료 (자유 텍스트 파싱 + PDF 파싱 + 플랜/워터마크)
 
 ## 현재 열린 PR
-- PR #37 dev → main — API 라우트 단위 테스트 추가 + vitest @/ alias
+- PR #37 dev → main — API 라우트 단위 테스트 추가 + vitest @/ alias + 나머지 라우트 테스트
   URL: https://github.com/ysparkr841/orgchart/pull/37
 
 ## 다음 우선순위
 1. PR #37 머지 대기
-2. app/api 나머지 라우트 테스트 추가 검토
-   - app/api/tree/[id]/route.ts (GET — 단일 프로젝트 조회)
-   - app/api/history/[projectId]/route.ts (GET/POST — 스냅샷 조회/복원)
-   - app/api/export/route.ts (GET — JSON 다운로드)
+2. app/api 라우트 테스트 전체 완료 (6개 라우트 모두 커버됨)
 3. 신규 기능 백로그 항목 추가 검토 (TODO.md P0~P3 전체 완료)
