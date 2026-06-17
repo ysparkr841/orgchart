@@ -1,9 +1,13 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-17 16:46 KST — 루프 에이전트 자동 사이클
+2026-06-17 16:55 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- exporter 공통 헬퍼 추출: dev 커밋 완료 (1f0c655)
+  - lib/export/exportHelpers.ts 신규 생성 (EXPORT_HEADERS + nodeToRow)
+  - csvExporter.ts, excelExporter.ts — 중복 HEADERS 상수 및 rows 매핑 로직 제거
+  - 전체 테스트 338개 유지
 - 접근성(a11y) 개선: dev 커밋 완료 (c7daab7)
   - FileDropZone: aria-disabled, Space 키 지원
   - OrgListView: table aria-label, th scope, tr aria-selected + Enter/Space 키보드 내비게이션
@@ -91,5 +95,5 @@
   URL: https://github.com/ysparkr841/orgchart/pull/40
 
 ## 다음 우선순위
-1. PR #40 머지 대기 (접근성 개선 포함)
-2. 추가 개선 후보: 코드 품질 개선 (중복 제거, 타입 강화)
+1. PR #40 머지 대기 (CSV 내보내기 + 접근성 개선 + exporter 리팩토링 포함)
+2. 추가 개선 후보: API 라우트 JSON/FormData 파싱 에러 처리 헬퍼화
