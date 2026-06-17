@@ -67,6 +67,24 @@ describe("NodeEditPanel", () => {
     expect(screen.getByTitle("파랑")).toBeInTheDocument();
   });
 
+  test("닫기 버튼에 aria-label='닫기'가 설정된다", () => {
+    render(<NodeEditPanel node={getCEO()} onClose={onClose} />);
+    expect(screen.getByRole("button", { name: "닫기" })).toBeInTheDocument();
+  });
+
+  test("색상 프리셋 버튼에 aria-pressed가 올바르게 설정된다", () => {
+    render(<NodeEditPanel node={getCEO()} onClose={onClose} />);
+    const defaultBtn = screen.getByRole("button", { name: "기본" });
+    expect(defaultBtn).toHaveAttribute("aria-pressed", "true");
+    const blueBtn = screen.getByRole("button", { name: "파랑" });
+    expect(blueBtn).toHaveAttribute("aria-pressed", "false");
+  });
+
+  test("직위/부서 label이 input과 연결된다", () => {
+    render(<NodeEditPanel node={getCEO()} onClose={onClose} />);
+    expect(screen.getByLabelText("직위/부서")).toBeInTheDocument();
+  });
+
   test("부모 변경 셀렉트에 '루트로 이동' 옵션이 표시된다", () => {
     render(<NodeEditPanel node={getCEO()} onClose={onClose} />);
     expect(screen.getByText("(루트로 이동)")).toBeInTheDocument();

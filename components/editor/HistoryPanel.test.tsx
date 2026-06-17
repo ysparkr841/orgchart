@@ -86,4 +86,18 @@ describe("HistoryPanel", () => {
     fireEvent.click(screen.getByTitle("새로 고침"));
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
   });
+
+  test("오류 메시지에 role='alert'가 설정된다", async () => {
+    vi.stubGlobal("fetch", stubFetch([{ ok: false, json: {} }]));
+    render(<HistoryPanel projectId="p1" onRestore={onRestore} />);
+    await waitFor(() => screen.getByRole("alert"));
+    expect(screen.getByRole("alert")).toHaveTextContent("이력 조회 실패");
+  });
+
+  test("새로고침 버튼에 aria-label='이력 새로 고침'이 설정된다", async () => {
+    vi.stubGlobal("fetch", stubFetch([{ ok: true, json: { snapshots: SNAPSHOTS } }]));
+    render(<HistoryPanel projectId="p1" onRestore={onRestore} />);
+    await waitFor(() => screen.getByText("최신 저장"));
+    expect(screen.getByRole("button", { name: "이력 새로 고침" })).toBeInTheDocument();
+  });
 });

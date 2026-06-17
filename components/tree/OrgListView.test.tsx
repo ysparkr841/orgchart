@@ -83,4 +83,29 @@ describe("OrgListView", () => {
     expect(screen.getAllByText("1명")).toHaveLength(2);
     expect(screen.getByText("—")).toBeInTheDocument();
   });
+
+  test("선택된 행에 aria-selected='true'가 설정된다", () => {
+    render(<OrgListView roots={[CEO]} selectedId="cto" onSelect={vi.fn()} />);
+    const selectedRow = screen.getByText("CTO").closest("tr")!;
+    expect(selectedRow).toHaveAttribute("aria-selected", "true");
+  });
+
+  test("선택되지 않은 행에 aria-selected='false'가 설정된다", () => {
+    render(<OrgListView roots={[CEO]} selectedId="cto" onSelect={vi.fn()} />);
+    const unselectedRow = screen.getByText("대표이사").closest("tr")!;
+    expect(unselectedRow).toHaveAttribute("aria-selected", "false");
+  });
+
+  test("Enter 키 입력 시 해당 노드로 onSelect가 호출된다", () => {
+    const onSelect = vi.fn();
+    render(<OrgListView roots={[CEO]} selectedId={null} onSelect={onSelect} />);
+    const row = screen.getByText("CTO").closest("tr")!;
+    fireEvent.keyDown(row, { key: "Enter" });
+    expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ id: "cto" }));
+  });
+
+  test("테이블에 aria-label='조직도 목록'이 설정된다", () => {
+    render(<OrgListView roots={[CEO]} selectedId={null} onSelect={vi.fn()} />);
+    expect(screen.getByRole("table", { name: "조직도 목록" })).toBeInTheDocument();
+  });
 });

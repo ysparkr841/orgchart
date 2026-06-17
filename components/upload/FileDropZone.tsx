@@ -54,13 +54,14 @@ export function FileDropZone({ onFilesSelected, disabled = false }: FileDropZone
   return (
     <div
       role="button"
-      tabIndex={0}
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled}
       aria-label="파일 업로드 영역. 클릭하거나 파일을 끌어다 놓으세요."
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
       onClick={onClick}
-      onKeyDown={(e) => e.key === "Enter" && onClick()}
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onClick()}
       className={[
         "flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-8 py-14 transition-colors",
         "cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-blue-500",
