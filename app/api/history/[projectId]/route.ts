@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { RawNode } from "@/lib/tree/builder";
 import { topologicalSort } from "@/lib/tree/builder";
+import { apiError, serverError, parseJsonBody } from "@/lib/api/routeHelpers";
 
 // 프로젝트 스냅샷 목록 조회 (최신순, 노드 데이터 제외하고 메타만 반환)
 export async function GET(
@@ -12,7 +13,7 @@ export async function GET(
 
   const project = await prisma.project.findUnique({ where: { id: projectId } });
   if (!project) {
-    return NextResponse.json({ error: "프로젝트를 찾을 수 없습니다." }, { status: 404 });
+    return apiError("프로젝트를 찾을 수 없습니다.", 404);
   }
 
   const snapshots = await prisma.projectSnapshot.findMany({
@@ -37,23 +38,19 @@ export async function POST(
 ) {
   const { projectId } = params;
 
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "JSON 파싱 실패" }, { status: 400 });
-  }
+  const parsed = await parseJsonBody<{ snapshotId?: string }>(req);
+  if (!parsed.ok) return parsed.response;
+  const { snapshotId } = parsed.data;
 
-  const { snapshotId } = body as { snapshotId?: string };
   if (!snapshotId || typeof snapshotId !== "string") {
-    return NextResponse.json({ error: "snapshotId가 필요합니다." }, { status: 400 });
+    return apiError("snapshotId가 필요합니다.", 400);
   }
 
   const snapshot = await prisma.projectSnapshot.findFirst({
     where: { id: snapshotId, projectId },
   });
   if (!snapshot) {
-    return NextResponse.json({ error: "스냅샷을 찾을 수 없습니다." }, { status: 404 });
+    return apiError("스냅샷을 찾을 수 없습니다.", 404);
   }
 
   const nodes = JSON.parse(snapshot.nodes) as RawNode[];
@@ -83,7 +80,6 @@ export async function POST(
 
     return NextResponse.json({ projectId, nodeCount: sorted.length });
   } catch (err) {
-    console.error("[POST /api/history/:projectId]", err);
-    return NextResponse.json({ error: "복원 실패" }, { status: 500 });
+    return serverError("[POST /api/history/:projectId]", err, "복원 실패");
   }
 }
