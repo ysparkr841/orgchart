@@ -1,9 +1,12 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-17 14:46 KST — 루프 에이전트 자동 사이클
+2026-06-17 14:53 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- POST /api/parse 라우트 단위 테스트 추가: dev 커밋 완료 (f830263)
+  - app/api/parse/route.test.ts — 9개 테스트 (formData 실패, files 없음, xlsx/pdf/이미지/hwp/hris/미지원/복수파일)
+  - 전체 테스트: 222개 → 231개 (26 → 27 파일)
 - 나머지 API 라우트 단위 테스트 추가: dev 커밋 완료 (24b7968)
   - app/api/tree/[id]/route.test.ts — 3개 테스트 (단일 프로젝트 조회, 404, meta 파싱)
   - app/api/history/[projectId]/route.test.ts — 7개 테스트 (GET 스냅샷 목록, POST 복원 흐름)
@@ -47,4 +50,5 @@
 ## 다음 우선순위
 1. PR #37 머지 대기
 2. app/api 라우트 테스트 전체 완료 (6개 라우트 모두 커버됨)
-3. 신규 기능 백로그 항목 추가 검토 (TODO.md P0~P3 전체 완료)
+3. lib/prisma.ts 테스트 보강 검토 (DB 클라이언트 싱글톤 — 모킹 난이도 있음)
+4. 신규 기능 백로그 항목 추가 검토 (TODO.md P0~P3 전체 완료)
