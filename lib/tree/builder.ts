@@ -26,6 +26,8 @@ export interface BuildResult {
   orphans: RawNode[];
 }
 
+export type TreeLayout = "horizontal" | "vertical";
+
 function toTreeNode(raw: RawNode): TreeNode {
   return {
     id: raw.id,
