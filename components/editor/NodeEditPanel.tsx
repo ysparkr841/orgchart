@@ -66,7 +66,9 @@ export function NodeEditPanel({ node, onClose }: Props) {
       <div className="flex items-center justify-between">
         <h2 className="font-semibold text-slate-800 text-sm">노드 편집</h2>
         <button
+          type="button"
           onClick={onClose}
+          aria-label="닫기"
           className="text-slate-400 hover:text-slate-600 text-xs"
         >
           ✕
@@ -75,24 +77,27 @@ export function NodeEditPanel({ node, onClose }: Props) {
 
       {/* 타이틀 편집 */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-slate-500">직위/부서</label>
+        <label htmlFor="node-title" className="text-xs text-slate-500">직위/부서</label>
         <input
+          id="node-title"
           className="border border-slate-200 rounded px-2 py-1 text-sm"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-slate-500">이름 (선택)</label>
+        <label htmlFor="node-name" className="text-xs text-slate-500">이름 (선택)</label>
         <input
+          id="node-name"
           className="border border-slate-200 rounded px-2 py-1 text-sm"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-slate-500">프로필 사진 URL (선택)</label>
+        <label htmlFor="node-avatar" className="text-xs text-slate-500">프로필 사진 URL (선택)</label>
         <input
+          id="node-avatar"
           className="border border-slate-200 rounded px-2 py-1 text-sm"
           value={avatarUrl}
           onChange={(e) => setAvatarUrl(e.target.value)}
@@ -117,7 +122,10 @@ export function NodeEditPanel({ node, onClose }: Props) {
           {COLOR_PRESETS.map((preset) => (
             <button
               key={preset.value}
+              type="button"
               title={preset.label}
+              aria-label={preset.label}
+              aria-pressed={color === preset.value}
               onClick={() => setColor(preset.value)}
               className={`w-6 h-6 rounded border-2 transition-all ${
                 color === preset.value
@@ -134,12 +142,14 @@ export function NodeEditPanel({ node, onClose }: Props) {
             value={color || "#f1f5f9"}
             onChange={(e) => setColor(e.target.value)}
             title="직접 선택"
+            aria-label="직접 색상 선택"
             className="w-6 h-6 rounded border border-slate-300 cursor-pointer p-0"
           />
         </div>
       </div>
 
       <button
+        type="button"
         onClick={handleSaveEdit}
         className="bg-blue-600 text-white text-sm py-1 rounded hover:bg-blue-700"
       >
@@ -148,8 +158,9 @@ export function NodeEditPanel({ node, onClose }: Props) {
 
       {/* 부모 변경 */}
       <div className="flex flex-col gap-1 border-t border-slate-100 pt-3">
-        <label className="text-xs text-slate-500">부모 노드 변경</label>
+        <label htmlFor="node-parent" className="text-xs text-slate-500">부모 노드 변경</label>
         <select
+          id="node-parent"
           className="border border-slate-200 rounded px-2 py-1 text-sm"
           value={parentId ?? "__root__"}
           onChange={handleMove}
@@ -166,6 +177,7 @@ export function NodeEditPanel({ node, onClose }: Props) {
       {/* 자식 추가 */}
       <div className="border-t border-slate-100 pt-3">
         <button
+          type="button"
           onClick={handleAddChild}
           className="w-full border border-dashed border-slate-300 text-slate-500 text-sm py-1.5 rounded hover:bg-slate-50"
         >
@@ -176,6 +188,7 @@ export function NodeEditPanel({ node, onClose }: Props) {
       {/* 삭제 */}
       <div className="border-t border-slate-100 pt-3">
         <button
+          type="button"
           onClick={handleDelete}
           className="w-full text-red-500 text-sm py-1.5 rounded hover:bg-red-50 border border-red-200"
         >

@@ -2,17 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import type { RawNode } from "@/lib/tree/builder";
 import { exportToExcel } from "@/lib/export/excelExporter";
+import { exportToCsv } from "@/lib/export/csvExporter";
+import { apiError } from "@/lib/api/routeHelpers";
 
-/** GET /api/export?projectId=xxx&format=json|xlsx — DB에서 조직도를 불러와 반환 */
+/** GET /api/export?projectId=xxx&format=json|xlsx|csv — DB에서 조직도를 불러와 반환 */
 export async function GET(req: NextRequest) {
   const projectId = req.nextUrl.searchParams.get("projectId");
   if (!projectId) {
-    return NextResponse.json({ error: "projectId required" }, { status: 400 });
+    return apiError("projectId required", 400);
   }
 
   const format = req.nextUrl.searchParams.get("format") ?? "json";
-  if (format !== "json" && format !== "xlsx") {
-    return NextResponse.json({ error: "format must be json or xlsx" }, { status: 400 });
+  if (format !== "json" && format !== "xlsx" && format !== "csv") {
+    return apiError("format must be json, xlsx, or csv", 400);
   }
 
   const project = await prisma.project.findUnique({
@@ -21,7 +23,7 @@ export async function GET(req: NextRequest) {
   });
 
   if (!project) {
-    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    return apiError("Project not found", 404);
   }
 
   const nodes: RawNode[] = project.nodes.map((n) => ({
@@ -38,6 +40,16 @@ export async function GET(req: NextRequest) {
       headers: {
         "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "Content-Disposition": `attachment; filename="orgchart-${projectId}.xlsx"`,
+      },
+    });
+  }
+
+  if (format === "csv") {
+    const csv = exportToCsv(nodes);
+    return new NextResponse(csv, {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": `attachment; filename="orgchart-${projectId}.csv"`,
       },
     });
   }

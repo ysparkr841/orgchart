@@ -75,13 +75,14 @@ export function HistoryPanel({ projectId, onRestore }: Props) {
           disabled={loading}
           className="text-xs text-slate-400 hover:text-slate-600 disabled:opacity-40"
           title="새로 고침"
+          aria-label="이력 새로 고침"
         >
           ↺
         </button>
       </div>
 
       {error && (
-        <p className="px-4 py-2 text-xs text-red-500">{error}</p>
+        <p role="alert" className="px-4 py-2 text-xs text-red-500">{error}</p>
       )}
 
       {loading ? (
@@ -91,7 +92,7 @@ export function HistoryPanel({ projectId, onRestore }: Props) {
           저장 이력이 없습니다. 조직도를 저장하면 이력이 쌓입니다.
         </p>
       ) : (
-        <ul className="flex-1 overflow-y-auto divide-y divide-slate-50">
+        <ul aria-label="변경 이력 목록" className="flex-1 overflow-y-auto divide-y divide-slate-50">
           {snapshots.map((s, i) => (
             <li key={s.id} className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-50">
               <div>

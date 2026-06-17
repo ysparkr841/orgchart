@@ -65,4 +65,17 @@ describe("OrgTreeChart", () => {
     );
     expect(container.querySelector("svg")).toBeInTheDocument();
   });
+
+  test("focusId prop이 있어도 크래시 없이 렌더링된다", () => {
+    const { container } = render(
+      <OrgTreeChart
+        roots={[makeNode("ceo", "CEO", [makeNode("cto", "CTO")])]}
+        selectedId={null}
+        onSelect={vi.fn()}
+        highlightIds={new Set(["cto"])}
+        focusId="cto"
+      />
+    );
+    expect(container.querySelector("svg")).toBeInTheDocument();
+  });
 });

@@ -43,16 +43,16 @@ export function OrgListView({ roots, selectedId, onSelect, searchQuery }: Props)
 
   return (
     <div className="h-full overflow-auto">
-      <table className="w-full text-sm border-collapse">
+      <table className="w-full text-sm border-collapse" aria-label="조직도 목록">
         <thead className="sticky top-0 bg-slate-100 z-10">
           <tr>
-            <th className="text-left px-4 py-2 font-medium text-slate-600 border-b border-slate-200 w-1/2">
+            <th scope="col" className="text-left px-4 py-2 font-medium text-slate-600 border-b border-slate-200 w-1/2">
               직책 / 이름
             </th>
-            <th className="text-left px-4 py-2 font-medium text-slate-600 border-b border-slate-200">
+            <th scope="col" className="text-left px-4 py-2 font-medium text-slate-600 border-b border-slate-200">
               하위 인원
             </th>
-            <th className="text-left px-4 py-2 font-medium text-slate-600 border-b border-slate-200">
+            <th scope="col" className="text-left px-4 py-2 font-medium text-slate-600 border-b border-slate-200">
               레벨
             </th>
           </tr>
@@ -63,7 +63,10 @@ export function OrgListView({ roots, selectedId, onSelect, searchQuery }: Props)
             return (
               <tr
                 key={node.id}
+                tabIndex={0}
+                aria-selected={isSelected}
                 onClick={() => onSelect(node)}
+                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onSelect(node)}
                 className={`cursor-pointer border-b border-slate-100 hover:bg-blue-50 transition-colors ${
                   isSelected ? "bg-blue-100" : ""
                 }`}

@@ -80,10 +80,34 @@ describe("GET /api/export", () => {
   });
 
   it("format이 유효하지 않으면 400을 반환한다", async () => {
-    const req = new NextRequest("http://localhost/api/export?projectId=p1&format=csv");
+    const req = new NextRequest("http://localhost/api/export?projectId=p1&format=xml");
     const res = await GET(req);
     expect(res.status).toBe(400);
     const data = (await res.json()) as { error: string };
     expect(data.error).toMatch(/format/);
+  });
+
+  it("format=csv 이면 CSV 파일을 반환한다", async () => {
+    mocks.projectFindUnique.mockResolvedValue({
+      id: "p1",
+      name: "테스트",
+      nodes: [
+        { id: "n1", title: "대표이사", name: null, parentId: null, order: 0 },
+        { id: "n2", title: "부장", name: "김철수", parentId: "n1", order: 1 },
+      ],
+    });
+
+    const req = new NextRequest("http://localhost/api/export?projectId=p1&format=csv");
+    const res = await GET(req);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toContain("text/csv");
+    expect(res.headers.get("Content-Disposition")).toContain(".csv");
+
+    const text = await res.text();
+    const lines = text.split("\n");
+    expect(lines[0]).toBe("id,title,name,parentId,order,color,avatarUrl");
+    expect(lines[1]).toContain("n1");
+    expect(lines[2]).toContain("n2");
   });
 });

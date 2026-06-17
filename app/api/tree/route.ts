@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { topologicalSort } from "@/lib/tree/builder";
 import type { RawNode } from "@/lib/tree/builder";
+import { apiError, serverError, parseJsonBody } from "@/lib/api/routeHelpers";
 
 export async function GET() {
   try {
@@ -11,8 +12,7 @@ export async function GET() {
     });
     return NextResponse.json({ projects });
   } catch (err) {
-    console.error("[GET /api/tree]", err);
-    return NextResponse.json({ error: "DB 조회 실패" }, { status: 500 });
+    return serverError("[GET /api/tree]", err, "DB 조회 실패");
   }
 }
 
@@ -23,20 +23,15 @@ interface SaveTreeBody {
 }
 
 export async function POST(req: NextRequest) {
-  let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "JSON 파싱 실패" }, { status: 400 });
-  }
-
-  const { name, nodes, projectId } = body as SaveTreeBody;
+  const parsed = await parseJsonBody<SaveTreeBody>(req);
+  if (!parsed.ok) return parsed.response;
+  const { name, nodes, projectId } = parsed.data;
 
   if (!name || typeof name !== "string") {
-    return NextResponse.json({ error: "name 필드가 필요합니다." }, { status: 400 });
+    return apiError("name 필드가 필요합니다.", 400);
   }
   if (!Array.isArray(nodes)) {
-    return NextResponse.json({ error: "nodes는 배열이어야 합니다." }, { status: 400 });
+    return apiError("nodes는 배열이어야 합니다.", 400);
   }
 
   const sorted = topologicalSort(nodes);
@@ -47,7 +42,7 @@ export async function POST(req: NextRequest) {
     if (pid) {
       const existing = await prisma.project.findUnique({ where: { id: pid } });
       if (!existing) {
-        return NextResponse.json({ error: "프로젝트를 찾을 수 없습니다." }, { status: 404 });
+        return apiError("프로젝트를 찾을 수 없습니다.", 404);
       }
       await prisma.project.update({ where: { id: pid }, data: { name } });
       await prisma.node.deleteMany({ where: { projectId: pid } });
@@ -77,7 +72,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ projectId: pid }, { status: 201 });
   } catch (err) {
-    console.error("[POST /api/tree]", err);
-    return NextResponse.json({ error: "DB 저장 실패" }, { status: 500 });
+    return serverError("[POST /api/tree]", err, "DB 저장 실패");
   }
 }

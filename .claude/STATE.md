@@ -1,9 +1,40 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-17 16:14 KST — 루프 에이전트 자동 사이클
+2026-06-17 17:14 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- OrgTreeChart 컴포넌트 분리: dev 커밋 완료 (e4c9ded)
+  - hooks/useOrgTreeD3.ts 신규 — D3 렌더링·드래그·줌 로직 전체 추출
+  - components/tree/ZoomControls.tsx 신규 — 줌 버튼 UI 컴포넌트
+  - OrgTreeChart.tsx: 363줄 → 36줄 (200줄 초과 해소)
+  - lib/tree/builder.ts: TreeLayout 타입 export 추가
+  - 전체 테스트 343개 유지
+- API 라우트 에러 처리 헬퍼화: dev 커밋 완료 (9171af0)
+  - lib/api/routeHelpers.ts 신규 생성 (apiError · serverError · parseJsonBody)
+  - 6개 API 라우트 적용 — NextResponse.json 중복 및 console.error+500 패턴 제거
+  - routeHelpers.test.ts 5개 테스트 추가 (338 → 343개)
+- exporter 공통 헬퍼 추출: dev 커밋 완료 (1f0c655)
+  - lib/export/exportHelpers.ts 신규 생성 (EXPORT_HEADERS + nodeToRow)
+  - csvExporter.ts, excelExporter.ts — 중복 HEADERS 상수 및 rows 매핑 로직 제거
+  - 전체 테스트 338개 유지
+- 접근성(a11y) 개선: dev 커밋 완료 (c7daab7)
+  - FileDropZone: aria-disabled, Space 키 지원
+  - OrgListView: table aria-label, th scope, tr aria-selected + Enter/Space 키보드 내비게이션
+  - NodeEditPanel: label-input htmlFor/id 연결, 버튼 type="button", aria-label, aria-pressed
+  - HistoryPanel: 에러 role="alert", 목록 aria-label, 새로고침 버튼 aria-label
+  - 테스트 12개 추가: 326개 → 338개
+- 검색 결과 자동 pan 기능 추가: dev 커밋 완료 (c8403db)
+  - OrgTreeChart에 focusId prop 추가 — 검색 시 첫 번째 매칭 노드로 D3 zoom 자동 이동
+  - 에디터 페이지: highlightIds 첫 번째 결과를 focusId로 계산해 OrgTreeChart에 전달
+  - OrgTreeChart.test.tsx: focusId 렌더링 테스트 추가
+  - 전체 테스트: 325개 → 326개
+- CSV 내보내기 기능 추가: dev 커밋 완료 (ffd1281)
+  - lib/export/csvExporter.ts — 순수 문자열 처리 기반 RawNode[] → CSV 변환
+  - GET /api/export?format=csv 지원 (기존 json/xlsx 유지)
+  - 쉼표·큰따옴표·개행 포함 셀 자동 이스케이프
+  - csvExporter.test.ts 9개 + route.test.ts CSV 케이스 1개 추가
+  - 전체 테스트: 315개 → 325개 (38 → 39 파일)
 - XLSX 내보내기 기능 추가: dev 커밋 완료 (0cd6b20)
   - lib/export/excelExporter.ts — SheetJS 기반 RawNode[] → XLSX 변환
   - GET /api/export?format=xlsx 지원 (기존 json 포맷 유지, 잘못된 포맷 400)
@@ -70,9 +101,9 @@
 - PR #27 dev → main: 머지 완료 (자유 텍스트 파싱 + PDF 파싱 + 플랜/워터마크)
 
 ## 현재 열린 PR
-- PR #39 dev → main — XLSX 내보내기 기능 추가
-  URL: https://github.com/ysparkr841/orgchart/pull/39
+- PR #40 dev → main — CSV 내보내기 기능 추가
+  URL: https://github.com/ysparkr841/orgchart/pull/40
 
 ## 다음 우선순위
-1. PR #39 머지 대기
-2. 추가 개선 후보: CSV 내보내기, 트리 노드 검색 하이라이트, 접근성(a11y) 개선
+1. PR #40 머지 대기 (CSV 내보내기 + 접근성 개선 + exporter 리팩토링 + API 헬퍼 + OrgTreeChart 분리 포함)
+2. 추가 개선 후보: ZoomControls 테스트 추가, useOrgTreeD3 테스트 보강

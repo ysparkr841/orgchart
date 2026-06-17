@@ -79,4 +79,19 @@ describe("FileDropZone", () => {
     render(<FileDropZone onFilesSelected={onFilesSelected} />);
     expect(() => fireEvent.keyDown(screen.getByRole("button"), { key: "Enter" })).not.toThrow();
   });
+
+  test("Space 키 입력 시 에러 없이 실행된다", () => {
+    render(<FileDropZone onFilesSelected={onFilesSelected} />);
+    expect(() => fireEvent.keyDown(screen.getByRole("button"), { key: " " })).not.toThrow();
+  });
+
+  test("disabled 상태일 때 aria-disabled='true'가 설정된다", () => {
+    render(<FileDropZone onFilesSelected={onFilesSelected} disabled />);
+    expect(screen.getByRole("button")).toHaveAttribute("aria-disabled", "true");
+  });
+
+  test("disabled 상태가 아닐 때 aria-disabled='false'가 설정된다", () => {
+    render(<FileDropZone onFilesSelected={onFilesSelected} />);
+    expect(screen.getByRole("button")).toHaveAttribute("aria-disabled", "false");
+  });
 });
