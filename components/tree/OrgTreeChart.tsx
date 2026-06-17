@@ -117,9 +117,9 @@ export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal
         .scale(scale);
       fitTransformRef.current = fit;
       currentTransformRef.current = fit;
-      zoom.transform(svg, fit);
+      try { zoom.transform(svg, fit); } catch { /* jsdom SVG baseVal 미지원 환경에서 skip */ }
     } else {
-      zoom.transform(svg, currentTransformRef.current);
+      try { zoom.transform(svg, currentTransformRef.current); } catch { /* same */ }
     }
 
     svg.append("defs")

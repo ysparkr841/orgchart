@@ -1,9 +1,21 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-17 15:30 KST — 루프 에이전트 자동 사이클
+2026-06-17 16:14 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- XLSX 내보내기 기능 추가: dev 커밋 완료 (0cd6b20)
+  - lib/export/excelExporter.ts — SheetJS 기반 RawNode[] → XLSX 변환
+  - GET /api/export?format=xlsx 지원 (기존 json 포맷 유지, 잘못된 포맷 400)
+  - excelExporter.test.ts 8개 + route.test.ts 2개 추가
+  - 전체 테스트: 305개 → 315개 (37 → 38 파일)
+- React 컴포넌트 단위 테스트 추가 3차: dev 커밋 완료 (52decb8)
+  - components/editor/HistoryPanel.test.tsx — 6개 테스트 (stubFetch call desync 버그 수정)
+  - components/tree/OrgListView.test.tsx — 8개 테스트 (검색 필터링 + 선택 상태)
+  - components/tree/OrgMinimap.test.tsx — 4개 테스트 (SVG 미니맵)
+  - components/tree/OrgTreeChart.test.tsx — 5개 테스트 (jsdom viewBox 스텁 + zoom try-catch)
+  - OrgTreeChart.tsx: zoom.transform try-catch로 jsdom 환경 호환성 확보
+  - 전체 테스트: 281개 → 305개 (33 → 37 파일)
 - React 컴포넌트 단위 테스트 추가 2차: dev 커밋 완료 (3273856)
   - components/upload/FileDropZone.test.tsx — 9개 테스트 (drag/drop, input, disabled)
   - components/mapping/ColumnMappingForm.test.tsx — 7개 테스트 (렌더링, 셀렉트, 스토어)
@@ -58,10 +70,9 @@
 - PR #27 dev → main: 머지 완료 (자유 텍스트 파싱 + PDF 파싱 + 플랜/워터마크)
 
 ## 현재 열린 PR
-- PR #38 dev → main — 컴포넌트 테스트 누적 반영 (prisma.ts, FilePreview, FileList, FileDropZone, ColumnMappingForm, NodeEditPanel)
-  URL: https://github.com/ysparkr841/orgchart/pull/38
+- PR #39 dev → main — XLSX 내보내기 기능 추가
+  URL: https://github.com/ysparkr841/orgchart/pull/39
 
 ## 다음 우선순위
-1. PR #38 머지 대기
-2. 나머지 컴포넌트 테스트 추가 — HistoryPanel, OrgListView, OrgTreeChart, OrgMinimap (4개 미커버)
-3. 신규 기능 백로그 항목 추가 검토 (TODO.md P0~P3 전체 완료)
+1. PR #39 머지 대기
+2. 추가 개선 후보: CSV 내보내기, 트리 노드 검색 하이라이트, 접근성(a11y) 개선
