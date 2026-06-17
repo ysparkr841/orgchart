@@ -52,6 +52,11 @@ export default function EditorPage() {
     [roots, searchQuery],
   );
 
+  const focusId = useMemo(
+    () => (highlightIds.size > 0 ? [...highlightIds][0] : undefined),
+    [highlightIds],
+  );
+
   async function handleSave() {
     setIsSaving(true);
     setSaveError(null);
@@ -260,6 +265,7 @@ export default function EditorPage() {
                 layout={layout}
                 onMove={moveNode}
                 highlightIds={highlightIds}
+                focusId={focusId}
               />
             </div>
           )}

@@ -13,6 +13,7 @@ interface Props {
   layout?: TreeLayout;
   onMove?: (nodeId: string, newParentId: string | null) => void;
   highlightIds?: Set<string>;
+  focusId?: string;
 }
 
 interface NodePos { id: string; x: number; y: number }
@@ -35,7 +36,7 @@ function collectSubtreeIds(node: TreeNode): Set<string> {
   return ids;
 }
 
-export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal", onMove, highlightIds }: Props) {
+export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal", onMove, highlightIds, focusId }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const nodePosRef = useRef<NodePos[]>([]);
   const zoomBehaviorRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown>>();
@@ -120,6 +121,19 @@ export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal
       try { zoom.transform(svg, fit); } catch { /* jsdom SVG baseVal 미지원 환경에서 skip */ }
     } else {
       try { zoom.transform(svg, currentTransformRef.current); } catch { /* same */ }
+    }
+
+    // 검색 결과가 있을 때 첫 번째 매칭 노드로 자동 pan
+    if (focusId) {
+      const target = nodePosRef.current.find((n) => n.id === focusId);
+      if (target) {
+        const k = currentTransformRef.current.k;
+        const panT = d3.zoomIdentity
+          .translate(svgW / 2 - target.x * k, svgH / 2 - target.y * k)
+          .scale(k);
+        currentTransformRef.current = panT;
+        try { zoom.transform(svg, panT); } catch { /* jsdom */ }
+      }
     }
 
     svg.append("defs")
@@ -295,7 +309,7 @@ export function OrgTreeChart({ roots, selectedId, onSelect, layout = "horizontal
       });
 
     nodeG.call(drag);
-  }, [roots, selectedId, onSelect, layout, onMove, highlightIds]);
+  }, [roots, selectedId, onSelect, layout, onMove, highlightIds, focusId]);
 
   const handleZoomIn = useCallback(() => {
     if (!svgRef.current || !zoomBehaviorRef.current) return;
