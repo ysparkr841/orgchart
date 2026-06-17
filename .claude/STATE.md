@@ -1,9 +1,12 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-17 14:53 KST — 루프 에이전트 자동 사이클
+2026-06-17 15:03 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- lib/prisma.ts 싱글톤 패턴 단위 테스트 추가: dev 커밋 완료 (1770657)
+  - lib/prisma.test.ts — 4개 테스트 (vi.stubEnv + vi.resetModules 패턴)
+  - 전체 테스트: 231개 → 235개 (27 → 28 파일)
 - POST /api/parse 라우트 단위 테스트 추가: dev 커밋 완료 (f830263)
   - app/api/parse/route.test.ts — 9개 테스트 (formData 실패, files 없음, xlsx/pdf/이미지/hwp/hris/미지원/복수파일)
   - 전체 테스트: 222개 → 231개 (26 → 27 파일)
@@ -44,11 +47,10 @@
 - PR #27 dev → main: 머지 완료 (자유 텍스트 파싱 + PDF 파싱 + 플랜/워터마크)
 
 ## 현재 열린 PR
-- PR #37 dev → main — API 라우트 단위 테스트 추가 + vitest @/ alias + 나머지 라우트 테스트
-  URL: https://github.com/ysparkr841/orgchart/pull/37
+- PR #38 dev → main — lib/prisma.ts 싱글톤 테스트 추가
+  URL: https://github.com/ysparkr841/orgchart/pull/38
 
 ## 다음 우선순위
-1. PR #37 머지 대기
-2. app/api 라우트 테스트 전체 완료 (6개 라우트 모두 커버됨)
-3. lib/prisma.ts 테스트 보강 검토 (DB 클라이언트 싱글톤 — 모킹 난이도 있음)
-4. 신규 기능 백로그 항목 추가 검토 (TODO.md P0~P3 전체 완료)
+1. PR #38 머지 대기
+2. 테스트 커버리지 공백 확인 — 현재 lib/ + app/api/ 전체 커버됨 (28개 파일, 235개 테스트)
+3. 신규 기능 백로그 항목 추가 검토 (TODO.md P0~P3 전체 완료)
