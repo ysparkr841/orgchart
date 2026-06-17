@@ -1,9 +1,20 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-17 15:03 KST — 루프 에이전트 자동 사이클
+2026-06-17 15:30 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- React 컴포넌트 단위 테스트 추가 2차: dev 커밋 완료 (3273856)
+  - components/upload/FileDropZone.test.tsx — 9개 테스트 (drag/drop, input, disabled)
+  - components/mapping/ColumnMappingForm.test.tsx — 7개 테스트 (렌더링, 셀렉트, 스토어)
+  - components/editor/NodeEditPanel.test.tsx — 7개 테스트 (편집/삭제/자식추가/이동)
+  - 전체 테스트: 258개 → 281개 (30 → 33 파일)
+- React 컴포넌트 단위 테스트 추가 1차: dev 커밋 완료 (9cb7387)
+  - @testing-library/react + @vitejs/plugin-react 설치
+  - vitest.setup.ts — jest-dom 매처 + cleanup 설정
+  - components/upload/FilePreview.test.tsx — 10개 테스트
+  - components/upload/FileList.test.tsx — 13개 테스트
+  - 전체 테스트: 235개 → 258개 (28 → 30 파일)
 - lib/prisma.ts 싱글톤 패턴 단위 테스트 추가: dev 커밋 완료 (1770657)
   - lib/prisma.test.ts — 4개 테스트 (vi.stubEnv + vi.resetModules 패턴)
   - 전체 테스트: 231개 → 235개 (27 → 28 파일)
@@ -47,10 +58,10 @@
 - PR #27 dev → main: 머지 완료 (자유 텍스트 파싱 + PDF 파싱 + 플랜/워터마크)
 
 ## 현재 열린 PR
-- PR #38 dev → main — lib/prisma.ts 싱글톤 테스트 추가
+- PR #38 dev → main — 컴포넌트 테스트 누적 반영 (prisma.ts, FilePreview, FileList, FileDropZone, ColumnMappingForm, NodeEditPanel)
   URL: https://github.com/ysparkr841/orgchart/pull/38
 
 ## 다음 우선순위
 1. PR #38 머지 대기
-2. 테스트 커버리지 공백 확인 — 현재 lib/ + app/api/ 전체 커버됨 (28개 파일, 235개 테스트)
+2. 나머지 컴포넌트 테스트 추가 — HistoryPanel, OrgListView, OrgTreeChart, OrgMinimap (4개 미커버)
 3. 신규 기능 백로그 항목 추가 검토 (TODO.md P0~P3 전체 완료)
