@@ -9,6 +9,7 @@ import { jsPDF } from "jspdf";
 import { generateReactCode, generateVueCode } from "@/lib/export/codeExporter";
 import { usePlanStore } from "@/lib/store/plan-store";
 import { applyWatermark } from "@/lib/export/watermark";
+import { downloadBlob, downloadDataUrl } from "@/lib/utils/downloadFile";
 
 export default function ExportPage() {
   const router = useRouter();
@@ -37,15 +38,11 @@ export default function ExportPage() {
 
   function downloadJson() {
     const nodes = treeToRawNodes(roots);
-    const blob = new Blob([JSON.stringify(nodes, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `orgchart-${projectId ?? "export"}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(
+      JSON.stringify(nodes, null, 2),
+      `orgchart-${projectId ?? "export"}.json`,
+      "application/json"
+    );
   }
 
   async function downloadPng() {
@@ -58,10 +55,7 @@ export default function ExportPage() {
         pixelRatio: 2,
       });
       if (isFree()) dataUrl = await applyWatermark(dataUrl);
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = `orgchart-${projectId ?? "export"}.png`;
-      a.click();
+      downloadDataUrl(dataUrl, `orgchart-${projectId ?? "export"}.png`);
     } catch {
       setPngError("PNG 변환에 실패했습니다.");
     } finally {
@@ -74,14 +68,7 @@ export default function ExportPage() {
     try {
       const code = type === "react" ? generateReactCode(roots) : generateVueCode(roots);
       const ext = type === "react" ? "tsx" : "vue";
-      const filename = `OrgChart.${ext}`;
-      const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
+      downloadBlob(code, `OrgChart.${ext}`, "text/plain;charset=utf-8");
     } catch {
       setCodeError("코드 생성에 실패했습니다.");
     }
