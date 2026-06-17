@@ -1,9 +1,15 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-17 16:14 KST — 루프 에이전트 자동 사이클
+2026-06-17 16:23 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- CSV 내보내기 기능 추가: dev 커밋 완료 (ffd1281)
+  - lib/export/csvExporter.ts — 순수 문자열 처리 기반 RawNode[] → CSV 변환
+  - GET /api/export?format=csv 지원 (기존 json/xlsx 유지)
+  - 쉼표·큰따옴표·개행 포함 셀 자동 이스케이프
+  - csvExporter.test.ts 9개 + route.test.ts CSV 케이스 1개 추가
+  - 전체 테스트: 315개 → 325개 (38 → 39 파일)
 - XLSX 내보내기 기능 추가: dev 커밋 완료 (0cd6b20)
   - lib/export/excelExporter.ts — SheetJS 기반 RawNode[] → XLSX 변환
   - GET /api/export?format=xlsx 지원 (기존 json 포맷 유지, 잘못된 포맷 400)
@@ -70,9 +76,9 @@
 - PR #27 dev → main: 머지 완료 (자유 텍스트 파싱 + PDF 파싱 + 플랜/워터마크)
 
 ## 현재 열린 PR
-- PR #39 dev → main — XLSX 내보내기 기능 추가
-  URL: https://github.com/ysparkr841/orgchart/pull/39
+- PR #40 dev → main — CSV 내보내기 기능 추가
+  URL: https://github.com/ysparkr841/orgchart/pull/40
 
 ## 다음 우선순위
-1. PR #39 머지 대기
-2. 추가 개선 후보: CSV 내보내기, 트리 노드 검색 하이라이트, 접근성(a11y) 개선
+1. PR #40 머지 대기
+2. 추가 개선 후보: 트리 노드 검색 하이라이트, 접근성(a11y) 개선
