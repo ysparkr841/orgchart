@@ -1,30 +1,32 @@
 # STATE.md
 
 ## 마지막 실행
-2026-06-14 19:20 KST — 루프 에이전트 자동 사이클
+2026-06-17 14:35 KST — 루프 에이전트 자동 사이클
 
 ## 완료된 작업 (최신순)
+- API 라우트 단위 테스트 추가: dev 커밋 완료 (3664537)
+  - vitest.config.ts — resolve.alias `@` → 프로젝트 루트 추가
+  - app/api/parse/text/route.test.ts — 5개 테스트 (vi.hoisted + vi.mock 패턴)
+  - app/api/tree/route.test.ts — 6개 테스트 (Prisma 모킹)
+  - 전체 테스트: 198개 → 209개 (21 → 23 파일)
 - watermark.ts 단위 테스트 추가: dev 커밋 완료 (5abf318)
   - lib/export/watermark.test.ts — 8개 테스트 (jsdom 환경, Canvas/Image mock)
   - jsdom devDependency 추가
   - 전체 테스트: 190개 → 198개 (20 → 21 파일)
 - Zustand 스토어 단위 테스트 추가: dev 커밋 완료 (676095a)
-  - lib/store/editor-store.test.ts — 20개 테스트 (addNode/deleteNode/updateNode/moveNode/setRoots/markSaved 전체 커버)
-  - lib/store/mapping-store.test.ts — 8개 테스트 (setMapping upsert, getMapping, clearMappings)
-  - lib/store/parse-store.test.ts — 8개 테스트 (addFiles, updateFile, clearFiles)
+  - lib/store/editor-store.test.ts — 20개 테스트
+  - lib/store/mapping-store.test.ts — 8개 테스트
+  - lib/store/parse-store.test.ts — 8개 테스트
   - 전체 테스트: 154개 → 190개 (17 → 20 파일)
 - rowsToNodes 단위 테스트 추가: dev 커밋 완료 (9c99af0)
-  - lib/tree/rowsToNodes.test.ts — 12개 테스트 (빈 매핑, titleColumn/nameColumn, parentId 연결, 자기참조 방지, 멀티시트 등)
-  - 전체 테스트: 142개 → 154개
-  - docs/TODO.md — 이미지 OCR 항목 완료 처리 ([x])
 - PDF 파싱 worker 오류 수정: dev 커밋 완료 (81a0cf6)
-  - lib/parser/pdfParser.ts — GlobalWorkerOptions.workerSrc를 빈 문자열 → pathToFileURL(pdf.worker.mjs) 경로로 변경
 - HRIS 연동 구현: dev 커밋 완료 (b59c82a)
-  - lib/parser/hrisParser.ts — XML(<employee>) + JSON(employees/data/members) 파싱
-  - lib/parser/hrisParser.test.ts — 9개 테스트 (전체 142개 통과)
 - HWP/HWPX 파일 파싱 구현: dev 커밋 완료 (0b1f195)
 - 변경 이력 추적 구현: dev 커밋 완료 (d291ed8)
 - 이미지 OCR 구현: dev 커밋 완료 (0212362)
+- PR #36 dev → main: 머지 완료 (watermark 테스트)
+- PR #35 dev → main: 머지 완료 (Zustand 스토어 테스트)
+- PR #34 dev → main: 머지 완료 (rowsToNodes 테스트)
 - PR #33 dev → main: 머지 완료 (PDF worker 오류 수정)
 - PR #32 dev → main: 머지 완료 (HRIS 연동)
 - PR #31 dev → main: 머지 완료 (HWP/HWPX 파싱)
@@ -34,10 +36,13 @@
 - PR #27 dev → main: 머지 완료 (자유 텍스트 파싱 + PDF 파싱 + 플랜/워터마크)
 
 ## 현재 열린 PR
-- PR #36 dev → main — watermark 테스트 추가 및 jsdom devDep 추가
-  URL: https://github.com/ysparkr841/orgchart/pull/36
+- PR #37 dev → main — API 라우트 단위 테스트 추가 + vitest @/ alias
+  URL: https://github.com/ysparkr841/orgchart/pull/37
 
 ## 다음 우선순위
-1. PR #36 머지 대기
-2. lib/ 전체 파일 테스트 커버리지 100% 달성 (lib/prisma.ts 제외 — 단순 초기화 코드)
+1. PR #37 머지 대기
+2. app/api 나머지 라우트 테스트 추가 검토
+   - app/api/tree/[id]/route.ts (GET — 단일 프로젝트 조회)
+   - app/api/history/[projectId]/route.ts (GET/POST — 스냅샷 조회/복원)
+   - app/api/export/route.ts (GET — JSON 다운로드)
 3. 신규 기능 백로그 항목 추가 검토 (TODO.md P0~P3 전체 완료)
